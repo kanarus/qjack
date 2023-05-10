@@ -3,6 +3,16 @@ name = "qjack"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+sqlx = { version = "0.6", default_features = false }
+
+[features]
+# default = []
+default = ["rt_tokio", "db_postgres"]
+
+rt_tokio = ["sqlx/runtime-tokio-native-tls"]
+rt_async-std = ["sqlx/runtime-async-std-native-tls"]
+
+db_postgres = ["sqlx/postgres"]
+db_mysql = ["sqlx/mysql"]
+db_sqlite = ["sqlx/sqlite"]

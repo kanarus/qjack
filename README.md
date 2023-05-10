@@ -5,7 +5,7 @@
 # This is just working draft (any codes here doesn't run now)
 
 ## ergonomic sqlx wrapper
-- available DB：PostgreSQL, MySQL
+- available DB：PostgreSQL, MySQL, SQLite
 - available runtime：`tokio`, `async-std`
 
 ## Sample; How to use
@@ -26,7 +26,7 @@ const dangerous_passwords: &[&str] = &[
 ];
 
 async fn sample() -> Result<(), qjack::Error> {
-    qjack::spawn()
+    qjack::spawn("MY DB URL")
         .max_connections(1024)
         .await?;
 
