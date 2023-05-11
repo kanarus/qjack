@@ -1,5 +1,5 @@
 /*===== compiler features =====*/
-#![feature(unboxed_closures, fn_traits, trait_alias)]
+#![feature(unboxed_closures, fn_traits)]
 
 
 /*===== crate feature managements =====*/
@@ -55,33 +55,63 @@ mod __feature__ {
     #[cfg(feature="db_sqlite")]
     pub(crate) use sqlx::sqlite::SqliteArguments as Params;
 
-    // #[cfg(feature="db_postgres")]
-    // pub(crate) use sqlx::postgres::PgArgumentBuffer as ParamsBuffer;
-    // #[cfg(feature="db_mysql")]
-    // pub(crate) use sqlx::mysql::MySqlArgumentBuffer as ParamsBuffer;
-    // #[cfg(feature="db_sqlite")]
-    // pub(crate) use sqlx::sqlite::SqliteArgumentBuffer as ParamsBuffer;
-// 
-    // #[cfg(feature="db_postgres")]
-    // pub(crate) use sqlx::postgres::PgTypeInfo as TypeInfo;
-    // #[cfg(feature="db_mysql")]
-    // pub(crate) use sqlx::mysql::MySqlTypeInfo as TypeInfo;
-    // #[cfg(feature="db_sqlite")]
-    // pub(crate) use sqlx::sqlite::SqliteTypeInfo as TypeInfo;
+    #[cfg(feature="db_postgres")]
+    pub(crate) use sqlx::postgres::PgQueryResult as QueryResult;
+    #[cfg(feature="db_mysql")]
+    pub(crate) use sqlx::mysql::MySqlQueryResult as QueryResult;
+    #[cfg(feature="db_sqlite")]
+    pub(crate) use sqlx::sqlite::SqliteQueryResult as QueryResult;
 }
 
 
 /*===== modules =====*/
-mod q;
 mod pool;
 mod query;
-mod params;
 
 
 /*===== visibility::pub =====*/
 pub use pool::spawn;
-pub use q::q;
+
+
+/*===== visibility::pub(crate) =====*/
+pub(crate) use pool::pool;
 
 
 /*===== reexports =====*/
 pub use sqlx::{FromRow, Error};
+
+
+/*===== q =====*/
+use query::{IntoQueryParams, IntoQueryAsParams};
+use std::{future::Future, task::Poll, ops::DerefMut};
+
+#[allow(non_camel_case_types)]
+pub struct q;
+
+impl q {
+    pub async fn optional<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Option<Model>, Error> {
+        params.binded(sqlx::query_as(sql)).fetch_optional(pool()).await
+    }
+    pub async fn one<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Model, Error> {
+        params.binded(sqlx::query_as(sql)).fetch_one(pool()).await
+    }
+    pub async fn all<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Vec<Model>, Error> {
+        params.binded(sqlx::query_as(sql)).fetch_all(pool()).await
+    }
+}
+
+const _: () = {
+    pub struct Query<'q>(Box<dyn 'q + Future<Output = Result<__feature__::QueryResult, Error>>>);
+    impl<'q, Params:IntoQueryParams<'q>> FnOnce<(&'q str, Params)> for q {
+        type Output = Query<'q>;
+        extern "rust-call" fn call_once(self, (sql, params): (&'q str, Params)) -> Self::Output {
+            Query(Box::new(params.binded(sqlx::query(sql)).execute(pool())))
+        }
+    }
+    impl<'q> Future for Query<'q> {
+        type Output = Result<(), Error>;
+        fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
+            unsafe {self.map_unchecked_mut(|this| this.0.deref_mut())}.poll(cx).map(|result| result.map(|_| ()))
+        }
+    }
+};

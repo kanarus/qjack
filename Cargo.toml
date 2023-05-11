@@ -12,7 +12,8 @@ edition = "2021"
 
 
 [dependencies]
-sqlx = { version = "0.6" }
+sqlx = "0.6"
+# futures-core = "0.3"
 
 
 [features]

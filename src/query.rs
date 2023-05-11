@@ -16,6 +16,11 @@ const _: () = {
     trait Param<'q>: 'q + Send + Encode<'q, __feature__::DB> + Type<__feature__::DB> {}
     impl<'q, T> Param<'q> for T where T: 'q + Send + Encode<'q, __feature__::DB> + Type<__feature__::DB> {}
 
+    impl<'q> IntoQueryParams<'q> for () {
+        fn binded(self, query: sqlxQuery<'q>) -> sqlxQuery<'q> {
+            query
+        }
+    }
     impl<'q, P0:Param<'q>> IntoQueryParams<'q> for (P0,) {
         fn binded(self, query: sqlxQuery<'q>) -> sqlxQuery<'q> {
             query.bind(self.0)
@@ -63,6 +68,11 @@ const _: () = {
     trait Param<'q>: 'q + Send + Encode<'q, __feature__::DB> + Type<__feature__::DB> {}
     impl<'q, T> Param<'q> for T where T: 'q + Send + Encode<'q, __feature__::DB> + Type<__feature__::DB> {}
 
+    impl<'q, Model:FromRow> IntoQueryAsParams<'q, Model> for () {
+        fn binded(self, query: sqlxQueryAs<'q, Model>) -> sqlxQueryAs<'q, Model> {
+            query
+        }
+    }
     impl<'q, Model:FromRow, P0:Param<'q>> IntoQueryAsParams<'q, Model> for (P0,) {
         fn binded(self, query: sqlxQueryAs<'q, Model>) -> sqlxQueryAs<'q, Model> {
             query.bind(self.0)
@@ -104,3 +114,32 @@ const _: () = {
         }
     }
 };
+
+
+
+
+#[cfg(test)]
+fn __assert_impls__() {
+    fn impl_params<'q, T: 'q + Send + Encode<'q, __feature__::DB> + Type<__feature__::DB>>() {}
+    impl_params::<String>();
+    impl_params::<&str>();
+    impl_params::<&String>();
+
+    impl_params::<i8>();
+    impl_params::<&i8>();
+
+    impl_params::<i64>();
+    impl_params::<&i64>();
+
+
+    fn impl_into_query_params<'q, T: IntoQueryParams<'q>>() {}
+    impl_into_query_params::<(String,)>();
+    // impl_into_query_params::<(&str, &i8)>();
+}
+
+
+
+
+
+
+
