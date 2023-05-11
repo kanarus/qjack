@@ -6,10 +6,15 @@ mod __ {
 
     pub static CONNECTION_POOL: OnceLock<__feature__::ConnectionPool> = OnceLock::new();
 
-    #[derive(Clone)]
     pub struct Config {
         DB_URL: String,
         max_connections: Option<u32>,
+    } impl Config {
+        fn clone(&self) -> Self {
+            Self { DB_URL: self.DB_URL.clone(),
+                max_connections: self.max_connections.clone(),
+            }
+        }
     } impl Config {
         pub(super) fn new(DB_URL: &str) -> Self {
             Self { DB_URL: DB_URL.to_string(),

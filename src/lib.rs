@@ -48,41 +48,39 @@ mod __feature__ {
     #[cfg(feature="db_sqlite")]
     pub(crate) use sqlx::Sqlite as DB;
 
+    #[cfg(feature="db_postgres")]
+    pub(crate) use sqlx::postgres::PgArguments as Params;
+    #[cfg(feature="db_mysql")]
+    pub(crate) use sqlx::mysql::MySqlArguments as Params;
+    #[cfg(feature="db_sqlite")]
+    pub(crate) use sqlx::sqlite::SqliteArguments as Params;
+
     // #[cfg(feature="db_postgres")]
-    // pub(crate) use sqlx::postgres::PgArguments as Params;
+    // pub(crate) use sqlx::postgres::PgArgumentBuffer as ParamsBuffer;
     // #[cfg(feature="db_mysql")]
-    // pub(crate) use sqlx::mysql::MySqlArguments as Params;
+    // pub(crate) use sqlx::mysql::MySqlArgumentBuffer as ParamsBuffer;
     // #[cfg(feature="db_sqlite")]
-    // pub(crate) use sqlx::sqlite::SqliteArguments as Params;
-
-    #[cfg(feature="db_postgres")]
-    pub(crate) use sqlx::postgres::PgArgumentBuffer as ParamsBuffer;
-    #[cfg(feature="db_mysql")]
-    pub(crate) use sqlx::mysql::MySqlArgumentBuffer as ParamsBuffer;
-    #[cfg(feature="db_sqlite")]
-    pub(crate) use sqlx::sqlite::SqliteArgumentBuffer as ParamsBuffer;
-
-    #[cfg(feature="db_postgres")]
-    pub(crate) use sqlx::postgres::PgTypeInfo as TypeInfo;
-    #[cfg(feature="db_mysql")]
-    pub(crate) use sqlx::mysql::MySqlTypeInfo as TypeInfo;
-    #[cfg(feature="db_sqlite")]
-    pub(crate) use sqlx::sqlite::SqliteTypeInfo as TypeInfo;
+    // pub(crate) use sqlx::sqlite::SqliteArgumentBuffer as ParamsBuffer;
+// 
+    // #[cfg(feature="db_postgres")]
+    // pub(crate) use sqlx::postgres::PgTypeInfo as TypeInfo;
+    // #[cfg(feature="db_mysql")]
+    // pub(crate) use sqlx::mysql::MySqlTypeInfo as TypeInfo;
+    // #[cfg(feature="db_sqlite")]
+    // pub(crate) use sqlx::sqlite::SqliteTypeInfo as TypeInfo;
 }
 
 
 /*===== modules =====*/
 mod q;
 mod pool;
+mod query;
 mod params;
 
 
 /*===== visibility::pub =====*/
 pub use pool::spawn;
-
-
-/*===== visibility::in-crate =====*/
-pub(crate) use pool::pool;
+pub use q::q;
 
 
 /*===== reexports =====*/

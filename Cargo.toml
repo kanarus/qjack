@@ -1,10 +1,19 @@
+[workspace]
+members = [
+    ".",
+    "macros",
+]
+
+
 [package]
 name = "qjack"
 version = "0.1.0"
 edition = "2021"
 
+
 [dependencies]
-sqlx = { version = "0.6", default_features = false }
+sqlx = { version = "0.6" }
+
 
 [features]
 # default = []
@@ -16,3 +25,7 @@ rt_async-std = ["sqlx/runtime-async-std-native-tls"]
 db_postgres = ["sqlx/postgres"]
 db_mysql = ["sqlx/mysql"]
 db_sqlite = ["sqlx/sqlite"]
+
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros"] }
