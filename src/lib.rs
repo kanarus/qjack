@@ -83,7 +83,7 @@ pub use sqlx::{FromRow, Error};
 
 /*===== q =====*/
 use query::{IntoQueryParams, IntoQueryAsParams};
-use std::{future::Future, task::Poll, ops::DerefMut};
+use std::{future::Future, task::Poll, pin::Pin};
 
 #[allow(non_camel_case_types)]
 pub struct q;
@@ -101,17 +101,36 @@ impl q {
 }
 
 const _: () = {
-    pub struct Query<'q>(Box<dyn 'q + Future<Output = Result<__feature__::QueryResult, Error>>>);
     impl<'q, Params:IntoQueryParams<'q>> FnOnce<(&'q str, Params)> for q {
         type Output = Query<'q>;
         extern "rust-call" fn call_once(self, (sql, params): (&'q str, Params)) -> Self::Output {
-            Query(Box::new(params.binded(sqlx::query(sql)).execute(pool())))
+            use sqlx::Executor;
+            Query( pool().execute(params.binded(sqlx::query(sql))) )
         }
     }
+    impl<'q> FnOnce<(&'q str,)> for q {
+        type Output = Query<'q>;
+        extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
+            use sqlx::Executor;
+            Query( pool().execute(sqlx::query(sql)) )
+        }
+    }
+
+    pub struct Query<'q>(
+        Pin<Box<dyn
+            Future<Output = Result<__feature__::QueryResult, Error>>
+            + Send
+            + 'q
+        >>
+    );
     impl<'q> Future for Query<'q> {
-        type Output = Result<(), Error>;
+        type Output = Result<__feature__::QueryResult, Error>;
         fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
-            unsafe {self.map_unchecked_mut(|this| this.0.deref_mut())}.poll(cx).map(|result| result.map(|_| ()))
+            (&mut self
+                .get_mut()
+                .0)
+                .as_mut()
+                .poll(cx)
         }
     }
 };
