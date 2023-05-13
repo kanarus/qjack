@@ -13,7 +13,7 @@ edition = "2021"
 
 [dependencies]
 sqlx = "0.6"
-# futures-core = "0.3"
+futures-util = "0.3"
 
 
 [features]

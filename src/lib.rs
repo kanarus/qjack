@@ -6,7 +6,7 @@
 #[cfg(any(
     all(feature="rt_tokio", feature="rt_async-std"),
 ))] compile_error!("
-    Can't enable multiple `rt_*` features
+    Can't activate multiple `rt_*` features
 ");
 
 #[cfg(any(
@@ -14,7 +14,7 @@
     all(feature="db_mysql", feature="db_sqlite"),
     all(feature="db_sqlite", feature="db_postgres"),
 ))] compile_error!("
-    Can't enable multiple `db_*` features
+    Can't activate multiple `db_*` features
 ");
 
 
@@ -65,19 +65,20 @@ mod __feature__ {
 
 
 /*===== modules =====*/
-mod mod_q;
 mod pool;
 mod model;
 mod query;
+mod __q__;
 
 
 /*===== visibility::pub =====*/
-pub use pool::spawn;
+pub use __q__::q;
+pub use model::Model;
 
 
 /*===== visibility::pub(crate) =====*/
-pub(crate) use pool::pool;
-// pub(crate) use mod_q::Fetch;
+pub(crate) use pool::{pool, Config};
+pub(crate) use model::{FetchAll, FetchOne, FetchOptional};
 
 
 /*===== reexports =====*/
@@ -85,55 +86,56 @@ pub use sqlx::{FromRow, Error};
 
 
 /*===== q =====*/
-use query::{IntoQueryParams, IntoQueryAsParams};
-use std::{future::Future, task::Poll, pin::Pin};
-
-#[allow(non_camel_case_types)]
-pub struct q;
-
-impl q {
-    pub async fn optional<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Option<Model>, Error> {
-        params.binded(sqlx::query_as(sql)).fetch_optional(pool()).await
-    }
-    pub async fn one<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Model, Error> {
-        params.binded(sqlx::query_as(sql)).fetch_one(pool()).await
-    }
-    pub async fn all<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Vec<Model>, Error> {
-        params.binded(sqlx::query_as(sql)).fetch_all(pool()).await
-    }
-}
-
-const _: () = {
-    impl<'q, Params:IntoQueryParams<'q>> FnOnce<(&'q str, Params)> for q {
-        type Output = Query<'q>;
-        extern "rust-call" fn call_once(self, (sql, params): (&'q str, Params)) -> Self::Output {
-            use sqlx::Executor;
-            Query( pool().execute(params.binded(sqlx::query(sql))) )
-        }
-    }
-    impl<'q> FnOnce<(&'q str,)> for q {
-        type Output = Query<'q>;
-        extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
-            use sqlx::Executor;
-            Query( pool().execute(sqlx::query(sql)) )
-        }
-    }
-
-    pub struct Query<'q>(
-        Pin<Box<dyn
-            Future<Output = Result<__feature__::QueryResult, Error>>
-            + Send
-            + 'q
-        >>
-    );
-    impl<'q> Future for Query<'q> {
-        type Output = Result<__feature__::QueryResult, Error>;
-        fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
-            (&mut self
-                .get_mut()
-                .0)
-                .as_mut()
-                .poll(cx)
-        }
-    }
-};
+// use query::{IntoQueryParams, IntoQueryAsParams};
+// use std::{future::Future, task::Poll, pin::Pin};
+// 
+// #[allow(non_camel_case_types)]
+// pub struct q;
+// 
+// impl q {
+//     pub async fn optional<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Option<Model>, Error> {
+//         params.binded(sqlx::query_as(sql)).fetch_optional(pool()).await
+//     }
+//     pub async fn one<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Model, Error> {
+//         params.binded(sqlx::query_as(sql)).fetch_one(pool()).await
+//     }
+//     pub async fn all<'q, Model: query::FromRow>(self, sql: &'q str, params: impl IntoQueryAsParams<'q, Model>) -> Result<Vec<Model>, Error> {
+//         params.binded(sqlx::query_as(sql)).fetch_all(pool()).await
+//     }
+// }
+// 
+// const _: () = {
+//     impl<'q, Params:IntoQueryParams<'q>> FnOnce<(&'q str, Params)> for q {
+//         type Output = Query<'q>;
+//         extern "rust-call" fn call_once(self, (sql, params): (&'q str, Params)) -> Self::Output {
+//             use sqlx::Executor;
+//             Query( pool().execute(params.binded(sqlx::query(sql))) )
+//         }
+//     }
+//     impl<'q> FnOnce<(&'q str,)> for q {
+//         type Output = Query<'q>;
+//         extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
+//             use sqlx::Executor;
+//             Query( pool().execute(sqlx::query(sql)) )
+//         }
+//     }
+// 
+//     pub struct Query<'q>(
+//         Pin<Box<dyn
+//             Future<Output = Result<__feature__::QueryResult, Error>>
+//             + Send
+//             + 'q
+//         >>
+//     );
+//     impl<'q> Future for Query<'q> {
+//         type Output = Result<__feature__::QueryResult, Error>;
+//         fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
+//             (&mut self
+//                 .get_mut()
+//                 .0)
+//                 .as_mut()
+//                 .poll(cx)
+//         }
+//     }
+// };
+// 
