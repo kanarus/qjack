@@ -2,7 +2,8 @@
     qjack
 </h1>
 
-## ergonomic sqlx wrapper
+## ergonomic sqlx wrapper for *nightly* Rust
+- nightly only
 - available DB：PostgreSQL, MySQL, SQLite
 - available runtime：`tokio`, `async-std`
 
@@ -57,7 +58,7 @@ async fn main() -> Result<(), qjack::Error> {
     Ok(())
 }
 ```
-cf) sqlx
+cf ) sqlx
 ```toml
 [dependencies]
 sqlx = { version = "0.6", features = ["runtime-tokio-native-tls", "postgres"] }
