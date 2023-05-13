@@ -43,9 +43,8 @@ async fn main() -> Result<(), qjack::Error> {
         ('Fiona', 'password123456')
     "#).await?;
 
-    q(r#" UPDATE user SET password = $1 WHERE name LIKE $2 "#,
+    q(r#" UPDATE user SET password = $1 WHERE password = 'password' "#,
         "newpassword",
-        "%a",
     ).await?;
 
     let users_ending_with_a = q(User::all(r#"
@@ -93,9 +92,8 @@ async fn main() -> Result<(), sqlx::Error> {
         ('Fiona', 'password123456')
     "#).await?;
 
-    sqlx::query(r#" UPDATE user SET password = $1 WHERE name LIKE $2 "#)
+    sqlx::query(r#" UPDATE user SET password = $1 WHERE password = 'password' "#)
         .bind("newpassword")
-        .bind("%a")
         .execute(&pool)
         .await?;
 
