@@ -13,9 +13,10 @@
 qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 ```
 ```rust
-use qjack::q;
+use qjack::{q, Model};
 
-#[qjack::Model] struct User {
+#[derive(Debug)]
+#[Model] struct User {
     id:       usize,
     name:     String,
     password: String,
@@ -64,7 +65,7 @@ cf ) sqlx
 sqlx = { version = "0.6", features = ["runtime-tokio-native-tls", "postgres"] }
 ```
 ```rust
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Debug)]
 struct User {
     id:       i64,
     name:     String,
