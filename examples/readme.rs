@@ -44,7 +44,3 @@ async fn main() -> Result<(), qjack::Error> {
     println!("{all_users:?}");
     Ok(())
 }
-
-async fn __() {
-    sqlx::query("").
-}

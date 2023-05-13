@@ -65,7 +65,9 @@ mod __feature__ {
 
 
 /*===== modules =====*/
+mod mod_q;
 mod pool;
+mod model;
 mod query;
 
 
@@ -75,6 +77,7 @@ pub use pool::spawn;
 
 /*===== visibility::pub(crate) =====*/
 pub(crate) use pool::pool;
+// pub(crate) use mod_q::Fetch;
 
 
 /*===== reexports =====*/
