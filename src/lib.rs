@@ -21,11 +21,11 @@
 /*===== feature-abstraction layer =====*/
 mod __feature__ {
     #[cfg(feature="db_postgres")]
-    pub(crate) use sqlx::postgres::PgRow as Row;
+    pub use sqlx::postgres::PgRow as Row;
     #[cfg(feature="db_mysql")]
-    pub(crate) use sqlx::mysql::MySqlRow as Row;
+    pub use sqlx::mysql::MySqlRow as Row;
     #[cfg(feature="db_sqlite")]
-    pub(crate) use sqlx::sqlite::SqliteRow as Row;
+    pub use sqlx::sqlite::SqliteRow as Row;
 
     #[cfg(feature="db_postgres")]
     pub(crate) use sqlx::PgPool as ConnectionPool;
@@ -42,11 +42,11 @@ mod __feature__ {
     pub(crate) use sqlx::sqlite::SqlitePoolOptions as PoolConfig;
 
     #[cfg(feature="db_postgres")]
-    pub(crate) use sqlx::Postgres as DB;
+    pub use sqlx::Postgres as DB;
     #[cfg(feature="db_mysql")]
-    pub(crate) use sqlx::MySql as DB;
+    pub use sqlx::MySql as DB;
     #[cfg(feature="db_sqlite")]
-    pub(crate) use sqlx::Sqlite as DB;
+    pub use sqlx::Sqlite as DB;
 
     #[cfg(feature="db_postgres")]
     pub(crate) use sqlx::postgres::PgArguments as Params;
@@ -72,17 +72,26 @@ mod __q__;
 
 
 /*===== visibility::pub =====*/
-pub use __q__::q;
-pub use model::Model;
+pub use __q__::{q};
+pub use model::{Model};
 
 
 /*===== visibility::pub(crate) =====*/
-pub(crate) use pool::{pool, Config};
+pub(crate) use pool::{pool};
 pub(crate) use model::{FetchAll, FetchOne, FetchOptional};
 
 
 /*===== reexports =====*/
-pub use sqlx::{FromRow, Error};
+pub use sqlx::Error;
+
+pub mod __private__ {
+    pub use crate::__feature__::{
+        Row, DB,
+    };
+    pub use ::sqlx::{
+        FromRow, ColumnIndex, decode::Decode, types::Type
+    };
+}
 
 
 /*===== q =====*/
