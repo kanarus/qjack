@@ -1,5 +1,9 @@
-mod attributes; mod heck;
-use attributes::{parse_child_attributes, parse_container_attributes};
+/* Thanks to
+    https://github.com/launchbadge/sqlx/blob/main/sqlx-macros-core/src/derives/row.rs
+*/
+
+mod attributes;
+use attributes::{parse_child_attributes, parse_container_attributes, rename_all};
 
 use proc_macro2::{TokenStream, Span};
 use quote::quote;
@@ -7,9 +11,15 @@ use syn::{Error, parse2, ItemStruct, Lifetime, parse_quote, Stmt, Expr};
 
 pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
     let input = parse2::<ItemStruct>(input)?;
-    let fields = input.fields;
-    let original_input = input.clone();
 
+    let original_input = {
+        let mut input = input.clone();
+        input.attrs = input.attrs.drain_filter(|a| a.path.);
+
+        todo!()
+    };
+
+    let fields = input.fields;
     let ident = &input.ident;
 
     let generics = &input.generics;
@@ -109,5 +119,7 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
                 )
             }
         }
+
+        #original_input
     })
 }

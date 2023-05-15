@@ -1,9 +1,29 @@
-use proc_macro2::{Span, TokenStream, Ident};
-use syn::{Type, Attribute, Error};
-use quote::quote;
+/* Thanks to
+    https://github.com/launchbadge/sqlx/blob/main/sqlx-macros-core/src/derives/attributes.rs
+*/
+
+use heck::{ToSnakeCase, ToShoutySnakeCase, ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
+use syn::{Type, Attribute, Error, Meta, NestedMeta, MetaNameValue, Lit, spanned::Spanned};
+use proc_macro2::{Span, Ident};
 
 
-#[derive(Clone)]
+macro_rules! fail {
+    ($t:expr, $m:expr) => {
+        return Err(syn::Error::new_spanned($t, $m))
+    };
+}
+
+macro_rules! try_set {
+    ($i:ident, $v:expr, $t:expr) => {
+        match $i {
+            None => $i = Some($v),
+            Some(_) => fail!($t, "duplicate attribute"),
+        }
+    };
+}
+
+
+#[derive(Clone, Copy)]
 pub enum RenameAll {
     LowerCase,
     SnakeCase,
@@ -35,15 +55,77 @@ pub struct ContainerAttributes {
 } pub struct TypeName {
     pub val:  String,
     pub span: Span,
-} impl TypeName {
-    pub fn get(&self) -> TokenStream {
-        let val = &self.val;
-        quote!{ #val }
-    }
 }
+// impl TypeName {
+//     pub fn get(&self) -> TokenStream {
+//         let val = &self.val;
+//         quote!{ #val }
+//     }
+// }
 
 pub fn parse_container_attributes(attrs: &[Attribute]) -> Result<ContainerAttributes, Error> {
-    todo!(/* https://github.com/launchbadge/sqlx/blob/main/sqlx-macros-core/src/derives/attributes.rs#L69 */)
+    let mut transparent = None;
+    let mut repr = None;
+    let mut type_name = None;
+    let mut rename_all = None;
+
+    for attr in attrs.iter().filter(|a| a.path.is_ident("qjack") || a.path.is_ident("repr")) {
+        match attr.parse_meta().map_err(|e| Error::new_spanned(attr, e))? {
+            Meta::List(list) if list.path.is_ident("qjack") => for value in list.nested.iter() {
+                match value {
+                    NestedMeta::Meta(meta) => match meta {
+                        Meta::Path(p) if p.is_ident("transparent") => try_set!(
+                            transparent,
+                            true,
+                            value
+                        ),
+                        Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("rename_all") => try_set!(
+                            rename_all,
+                            match &*val.value() {
+                                "lowercase" => RenameAll::LowerCase,
+                                "snake_case" => RenameAll::SnakeCase,
+                                "UPPERCASE" => RenameAll::UpperCase,
+                                "SCREAMING_SNAKE_CASE" => RenameAll::ScreamingSnakeCase,
+                                "kebab-case" => RenameAll::KebabCase,
+                                "camelCase" => RenameAll::CamelCase,
+                                "PascalCase" => RenameAll::PascalCase,
+                                _ => fail!(meta, "unexpected value for rename_all"),
+                            },
+                            value
+                        ),
+                        Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("ytpe_name") => try_set!(
+                            type_name,
+                            TypeName {val: val.value(), span: value.span()},
+                            value
+                        ),
+                        u => fail!(u, "unexpected_attribute"),
+                    },
+                    u => fail!(u, "unexpected attribute"),
+                }
+            }
+            Meta::List(list) if list.path.is_ident("repr") => {
+                if list.nested.len() != 1 {
+                    fail!(&list.nested, "expected one value")
+                }
+                match list.nested.first().unwrap() {
+                    NestedMeta::Meta(Meta::Path(p)) if p.get_ident().is_some() => try_set!(
+                        repr,
+                        p.get_ident().unwrap().clone(),
+                        list
+                    ),
+                    u => fail!(u, "unexpected value")
+                }
+            }
+            _ => ()
+        }
+    }
+
+    Ok(ContainerAttributes {
+        is_transparent: transparent.unwrap_or(false),
+        type_name,
+        rename_all,
+        repr
+    })
 }
 
 
@@ -56,5 +138,38 @@ pub struct ChildAttributes {
 }
 
 pub fn parse_child_attributes(attrs: &[Attribute]) -> Result<ChildAttributes, Error> {
-    todo!(/* https://github.com/launchbadge/sqlx/blob/main/sqlx-macros-core/src/derives/attributes.rs#L154 */)
+    let mut rename =     None;
+    let mut is_default = false;
+    let mut is_flatten = false;
+    let mut try_from =   None;
+    let mut is_skip =    false;
+
+    for attr in attrs.iter().filter(|a| a.path.is_ident("qjack")) {
+        let meta = attr.parse_meta().map_err(|e| Error::new_spanned(attr, e))?;
+        if let Meta::List(list) = meta {
+            for value in list.nested.iter() {
+                match value {
+                    NestedMeta::Meta(meta) => match meta {
+                        Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("rename") => try_set!(
+                            rename,
+                            val.value(),
+                            value
+                        ),
+                        Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("try_from") => try_set!(
+                            try_from,
+                            val.parse()?,
+                            value
+                        ),
+                        Meta::Path(path) if path.is_ident("default") => is_default = true,
+                        Meta::Path(path) if path.is_ident("flatten") => is_flatten = true,
+                        Meta::Path(path) if path.is_ident("skip")    => is_skip    = true,
+                        u => fail!(u, "unexpected attribute")
+                    },
+                    u => fail!(u, "unexpected attribute")
+                }
+            }
+        }
+    }
+
+    Ok(ChildAttributes { rename, is_default, is_flatten, try_from, is_skip })
 }
