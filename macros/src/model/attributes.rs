@@ -65,9 +65,9 @@ pub struct ContainerAttributes {
 
 pub fn parse_container_attributes(attrs: &[Attribute]) -> Result<ContainerAttributes, Error> {
     let mut transparent = None;
-    let mut repr = None;
-    let mut type_name = None;
-    let mut rename_all = None;
+    let mut repr        = None;
+    let mut type_name   = None;
+    let mut rename_all  = None;
 
     for attr in attrs.iter().filter(|a| a.path.is_ident("qjack") || a.path.is_ident("repr")) {
         match attr.parse_meta().map_err(|e| Error::new_spanned(attr, e))? {
@@ -82,18 +82,18 @@ pub fn parse_container_attributes(attrs: &[Attribute]) -> Result<ContainerAttrib
                         Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("rename_all") => try_set!(
                             rename_all,
                             match &*val.value() {
-                                "lowercase" => RenameAll::LowerCase,
-                                "snake_case" => RenameAll::SnakeCase,
-                                "UPPERCASE" => RenameAll::UpperCase,
+                                "lowercase"            => RenameAll::LowerCase,
+                                "snake_case"           => RenameAll::SnakeCase,
+                                "UPPERCASE"            => RenameAll::UpperCase,
                                 "SCREAMING_SNAKE_CASE" => RenameAll::ScreamingSnakeCase,
-                                "kebab-case" => RenameAll::KebabCase,
-                                "camelCase" => RenameAll::CamelCase,
-                                "PascalCase" => RenameAll::PascalCase,
+                                "kebab-case"           => RenameAll::KebabCase,
+                                "camelCase"            => RenameAll::CamelCase,
+                                "PascalCase"           => RenameAll::PascalCase,
                                 _ => fail!(meta, "unexpected value for rename_all"),
                             },
                             value
                         ),
-                        Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("ytpe_name") => try_set!(
+                        Meta::NameValue(MetaNameValue{path, lit: Lit::Str(val), ..}) if path.is_ident("type_name") => try_set!(
                             type_name,
                             TypeName {val: val.value(), span: value.span()},
                             value
@@ -122,8 +122,8 @@ pub fn parse_container_attributes(attrs: &[Attribute]) -> Result<ContainerAttrib
 
     Ok(ContainerAttributes {
         is_transparent: transparent.unwrap_or(false),
-        type_name,
         rename_all,
+        type_name,
         repr
     })
 }
@@ -145,8 +145,7 @@ pub fn parse_child_attributes(attrs: &[Attribute]) -> Result<ChildAttributes, Er
     let mut is_skip =    false;
 
     for attr in attrs.iter().filter(|a| a.path.is_ident("qjack")) {
-        let meta = attr.parse_meta().map_err(|e| Error::new_spanned(attr, e))?;
-        if let Meta::List(list) = meta {
+        if let Meta::List(list) = attr.parse_meta().map_err(|e| Error::new_spanned(attr, e))? {
             for value in list.nested.iter() {
                 match value {
                     NestedMeta::Meta(meta) => match meta {

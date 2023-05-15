@@ -27,6 +27,7 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
 
         input
     };
+    let original_generics = original_input.clone().generics;
 
     let fields = input.fields;
     let ident = &input.ident;
@@ -35,7 +36,7 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
     let (lifetime, lifeteim_is_provided) = generics.lifetimes()
         .next()
         .map(|def| (def.lifetime.clone(), false))
-        .unwrap_or_else(|| (Lifetime::new("a", Span::call_site()), true));
+        .unwrap_or_else(|| (Lifetime::new("'a", Span::call_site()), true));
     let (_, type_generics, _) = generics.split_for_impl();
 
     let mut generics = generics.clone();
@@ -63,8 +64,8 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
                     parse_quote!{ <#ty as ::qjack::__private__::FromRow<#lifetime, R>>::from_row(row) }
                 }
                 (false, None) => {
-                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Decode<#lifetime, DB> });
-                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Type<DB> });
+                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Decode<#lifetime, <R as ::qjack::__private__::Row>::Database> });
+                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Type<<R as ::qjack::__private__::Row>::Database> });
                     let ident_s = attrs.rename
                         .or_else(|| Some(ident.to_string().trim_start_matches("r#").to_owned()))
                         .map(|s| match containser_attributes.rename_all {
@@ -84,8 +85,8 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
                     }
                 }
                 (false, Some(try_from)) => {
-                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Decode<#lifetime, DB> });
-                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Type<DB> });
+                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Decode<#lifetime, <R as ::qjack::__private__::Row>::Database> });
+                    predicates.push(parse_quote!{ #ty: ::qjack::__private__::Type<<R as ::qjack::__private__::Row>::Database> });
                     let ident_s = attrs.rename
                         .or_else(|| Some(ident.to_string().trim_start_matches("r#").to_owned()))
                         .map(|s| match containser_attributes.rename_all {
@@ -130,7 +131,7 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
         }
 
         #[automatically_derived]
-        impl #impl_generics ::qjack::model for #ident #type_generics {}
+        impl #original_generics ::qjack::model for #ident #type_generics {}
 
         #original_input
     })

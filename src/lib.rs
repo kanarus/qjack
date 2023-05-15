@@ -88,10 +88,10 @@ pub use sqlx::Error;
 
 pub mod __private__ {
     pub use crate::__feature__::{
-        Row, DB,
+        DB,
     };
     pub use ::sqlx::{
-        FromRow, ColumnIndex, decode::Decode, types::Type
+        FromRow, ColumnIndex, decode::Decode, types::Type, Row
     };
 }
 
