@@ -129,6 +129,9 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
             }
         }
 
+        #[automatically_derived]
+        impl #impl_generics ::qjack::model for #ident #type_generics {}
+
         #original_input
     })
 }
