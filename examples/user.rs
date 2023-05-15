@@ -1,3 +1,4 @@
+#![allow(unused)]
 use qjack::{q, Error, model};
 
 #[derive(Debug)]
@@ -32,7 +33,7 @@ async fn main() -> Result<(), Error> {
         "newpassword",
     ).await?;
 
-    let users_ending_with_a: Vec<User> = q(User::all(r#"
+    let users_ending_with_a = q(User::all(r#"
         SELECT id, name, password FROM users
         WHERE name LIKE $1
         ORDER BY name
