@@ -43,7 +43,7 @@ async fn main() -> Result<(), qjack::Error> {
         ('Fiona', 'password123456')
     "#).await?;
 
-    q(r#" UPDATE user SET password = $1 WHERE password = 'password' "#,
+    q(r#" UPDATE users SET password = $1 WHERE password = 'password' "#,
         "newpassword",
     ).await?;
 

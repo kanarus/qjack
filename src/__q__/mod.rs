@@ -28,7 +28,7 @@ impl q {
     /// }
     /// ```
     #[allow(non_snake_case)]
-    pub fn jack<'url>(DB_URL: &'url str) -> Config {
+    pub fn jack<'url>(self, DB_URL: &'url str) -> Config {
         Config::new(DB_URL)
     }
 }
