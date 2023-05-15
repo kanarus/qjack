@@ -13,10 +13,10 @@
 qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 ```
 ```rust
-use qjack::{q, Model};
+use qjack::{q, model};
 
 #[derive(Debug)]
-#[Model] struct User {
+#[model] struct User {
     id:       usize,
     name:     String,
     password: String,

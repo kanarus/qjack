@@ -1,13 +1,13 @@
 use std::{pin::Pin, future::Future};
 use futures_util::{TryStreamExt};
 use sqlx::{Executor, Either};
-use crate::{Error, Model, FetchAll, FetchOne, FetchOptional, q, pool};
+use crate::{Error, model, FetchAll, FetchOne, FetchOptional, q, pool};
 use super::param::Param;
 
 macro_rules! impl_q_fetch_all_with_params {
     ($( $param:ident )*) => {
         #[allow(non_camel_case_types)]
-        impl<'q, M:Model+'q, $( $param:Param<'q> ),*> FnOnce<(FetchAll<'q, M>, $( $param ),*)> for q {
+        impl<'q, M:model+'q, $( $param:Param<'q> ),*> FnOnce<(FetchAll<'q, M>, $( $param ),*)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
             extern "rust-call" fn call_once(self,
                 (FetchAll{sql, __as__}, $( $param ),*): (FetchAll<'q, M>, $( $param ),*)
@@ -41,7 +41,7 @@ macro_rules! impl_q_fetch_all_with_params {
 macro_rules! impl_q_fetch_one_with_params {
     ($( $param:ident )*) => {
         #[allow(non_camel_case_types)]
-        impl<'q, M:Model+'q, $( $param:Param<'q> ),*> FnOnce<(FetchOne<'q, M>, $( $param ),*)> for q {
+        impl<'q, M:model+'q, $( $param:Param<'q> ),*> FnOnce<(FetchOne<'q, M>, $( $param ),*)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
             extern "rust-call" fn call_once(self,
                 (FetchOne{sql, __as__}, $( $param ),*): (FetchOne<'q, M>, $( $param ),*)
@@ -75,7 +75,7 @@ macro_rules! impl_q_fetch_one_with_params {
 macro_rules! impl_q_fetch_optional_with_params {
     ($( $param:ident )*) => {
         #[allow(non_camel_case_types)]
-        impl<'q, M:Model+'q, $( $param:Param<'q> ),*> FnOnce<(FetchOptional<'q, M>, $( $param ),*)> for q {
+        impl<'q, M:model+'q, $( $param:Param<'q> ),*> FnOnce<(FetchOptional<'q, M>, $( $param ),*)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
             extern "rust-call" fn call_once(self,
                 (FetchOptional{sql, __as__}, $( $param ),*): (FetchOptional<'q, M>, $( $param ),*)

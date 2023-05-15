@@ -5,8 +5,8 @@
 mod attributes;
 use attributes::{parse_child_attributes, parse_container_attributes, rename_all};
 
+use quote::{quote, format_ident};
 use proc_macro2::{TokenStream, Span};
-use quote::quote;
 use syn::{Error, parse2, ItemStruct, Lifetime, parse_quote, Stmt, Expr};
 
 pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
@@ -14,9 +14,18 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
 
     let original_input = {
         let mut input = input.clone();
-        input.attrs = input.attrs.drain_filter(|a| a.path.ge);
 
-        todo!()
+        let mut attrs = Vec::new();
+        for attr in input.attrs {
+            if attr.path.get_ident().is_some_and(|ident| ident == &format_ident!("model")) {
+                // skip (because this is me)
+            } else {
+                attrs.push(attr)
+            }
+        }
+        input.attrs = attrs;
+
+        input
     };
 
     let fields = input.fields;

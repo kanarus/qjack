@@ -14,6 +14,7 @@ edition = "2021"
 [dependencies]
 sqlx = "0.6"
 futures-util = "0.3"
+qjack_macros = { version = "0.1.0", path = "macros" }
 
 
 [features]
