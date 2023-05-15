@@ -14,7 +14,7 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
 
     let original_input = {
         let mut input = input.clone();
-        input.attrs = input.attrs.drain_filter(|a| a.path.);
+        input.attrs = input.attrs.drain_filter(|a| a.path.ge);
 
         todo!()
     };
