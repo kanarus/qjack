@@ -1,13 +1,5 @@
 version: '3'
 
-x-environment: &environment
-  POSTGRES_USER: posgre
-  POSTGRES_PASSWORD: password
-  POSTGRES_HOST: posgre
-  POSTGRES_PORT: 5432
-  POSTGRES_DATABASE: posgre
-  PGSSLMODE: disable
-
 services:
   db:
     image: postgres:15-alpine
@@ -16,7 +8,13 @@ services:
       options:
         max-size: '10k'
         max-file: '5'
-    environment: *environment
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: host
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: db
+      PGSSLMODE: disable
     ports:
       - '5433:5432'
     volumes:

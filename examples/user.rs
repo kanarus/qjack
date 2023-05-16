@@ -1,13 +1,5 @@
 use qjack::{q, model, Error};
 
-mod example_env {
-    pub const POSTGRES_USER:     &str = "posgre";
-    pub const POSTGRES_PASSWORD: &str = "password";
-    pub const POSTGRES_HOST:     &str = "posgre";
-    pub const POSTGRES_PORT:     &str = "5432";
-    pub const POSTGRES_DATABASE: &str = "posgre";
-}
-
 #[derive(Debug)]
 #[model] struct User {
     id:       i64,
@@ -17,14 +9,7 @@ mod example_env {
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let db_url = format!("postgres://{}:{}@{}:{}/{}",
-        example_env::POSTGRES_USER,
-        example_env::POSTGRES_PASSWORD,
-        example_env::POSTGRES_HOST,
-        example_env::POSTGRES_PORT,
-        example_env::POSTGRES_DATABASE,
-    );
-    q.jack(&db_url)
+    q.jack("postgres://user:password@host:5432/db")
         .max_connections(42)
         .await?;
 
