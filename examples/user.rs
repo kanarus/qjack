@@ -2,7 +2,7 @@ use qjack::{q, model, Error};
 
 #[derive(Debug)]
 #[model] struct User {
-    id:       i64,
+    id:       i32,
     name:     String,
     password: String,
 }
@@ -29,9 +29,20 @@ async fn main() -> Result<(), Error> {
         ('Fiona', 'password123456')
     ").await?;
 
-    q("UPDATE users SET password = $1 WHERE password = 'password'",
-        "newpassword",
-    ).await?;
+    let first_user = q(User::one("
+        SELECT id, name, password FROM users
+        WHERE id = $1
+    "), 1).await?;
+    println!("First user is {} with password `{}`", first_user.name, first_user.password);
+
+    let password_user = q(User::optional("
+        SELECT id, name, password FROM users
+        WHERE password = $1
+    "), "password").await?;
+    match password_user {
+        None      => println!("No user has password 'password'"),
+        Some(one) => println!("{}th user has password 'password'", one.id),
+    }
 
     let users_ending_with_a = q(User::all("
         SELECT id, name, password FROM users
@@ -39,7 +50,7 @@ async fn main() -> Result<(), Error> {
         ORDER BY name
         LIMIT $2
     "), "%a", 100).await?;
-    
-    println!("{users_ending_with_a:?}: {} rows", users_ending_with_a.len());
+    println!("{users_ending_with_a:#?}: {} rows", users_ending_with_a.len());
+
     Ok(())
 }
