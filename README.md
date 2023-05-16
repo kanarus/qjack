@@ -12,8 +12,11 @@
 [dependencies]
 qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 ```
-part of `qjack/examples/user.rs`
+part of `qjack/examples/friends.rs`
 ```rust
+use qjack::{q, model};
+type Result<T> = std::result::Result<T, qjack::Error>;
+
 #[derive(Debug)]
 #[model] struct Friend {
     id:       i32,
@@ -23,7 +26,7 @@ part of `qjack/examples/user.rs`
 
 impl Friend {
     async fn create_table_if_not_exists() -> Result<()> {
-        q("CREATE TABLE IF NOT EXISTS users (
+        q("CREATE TABLE IF NOT EXISTS friends (
             id SERIAL PRIMARY KEY,
             name VARCHAR(32) NOT NULL,
             password VARCHAR(64) NOT NULL
@@ -32,21 +35,21 @@ impl Friend {
 
     async fn find_by_id(id: i32) -> Result<Self> {
         q(Self::one("
-            SELECT id, name, password FROM users
+            SELECT id, name, password FROM friends
             WHERE id = $1
         "), id).await
     }
 
     async fn search_by_password(password: &str) -> Result<Option<Self>> {
         q(Self::optional("
-            SELECT id, name, password FROM users
+            SELECT id, name, password FROM friends
             WHERE password = $1
         "), password).await
     }
 
     async fn find_all_with_limit_by_name_like(like: &str, limit: i32) -> Result<Vec<Friend>> {
         q(Self::all("
-            SELECT id, name, password FROM users
+            SELECT id, name, password FROM friends
             WHERE name LIKE $1
             LIMIT $2
         "), like, limit).await
@@ -55,7 +58,7 @@ impl Friend {
     async fn create_many(name_passwords: impl IntoIterator<Item = (String, String)>) -> Result<()> {
         let mut name_passwords = name_passwords.into_iter();
 
-        let mut insert = String::from("INSERT INTO users (name, password) VALUES");
+        let mut insert = String::from("INSERT INTO friends (name, password) VALUES");
         if let Some((first_name, first_password)) = name_passwords.next() {
             insert.push_str(&format!(" ('{}', '{}')", first_name, first_password))
         } else {return Ok(())}
@@ -69,10 +72,10 @@ impl Friend {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    q.jack("postgres://user:password@postgres:5432/db")
+    q.jack("postgres://qjack:password@postgres:5432/db")
         .max_connections(42)
         .await?;
-    println!("jacked");
+    println!("Hi, jacked!");
 
     Friend::create_table_if_not_exists().await?;
 
