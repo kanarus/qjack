@@ -69,4 +69,4 @@ async fn main() -> Result<(), Error> {
 - `q( Model::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `Model`.
 - `q( Model::optional("query string") /* , param1, param2, ... */ ).await?` executes a fetch-optional query. This returns `Option<Model>`.
 
-Here `Model` means a struct that has `#[model]` attribute.
+Here `Model` means a `#[model] struct`.
