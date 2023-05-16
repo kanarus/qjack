@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use std::{sync::OnceLock, future::{Future, IntoFuture}, task::Poll, pin::pin};
+use std::{sync::OnceLock, future::{Future, IntoFuture}, task::Poll};
 use crate::__feature__;
 
 pub static CONNECTION_POOL: OnceLock<__feature__::ConnectionPool> = OnceLock::new();
@@ -15,11 +15,6 @@ pub struct Config {
         ConnectingFuture({
             let (db_url, pool_config) = self.into_pool_config();
             let connecting_future = pool_config.connect(db_url);
-
-            // ===
-            println!("called `into_future`");
-            // ===
-
             Box::new(connecting_future)
         })
     }

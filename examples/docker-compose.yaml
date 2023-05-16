@@ -8,10 +8,12 @@ services:
     tty: true
     command: bash
     working_dir: /app
+    ports:
+      - 3000:3000
     volumes:
       - ../:/app
     depends_on:
-      - db
+      - postgres
 
   postgres:
     image: postgres:15-alpine
@@ -25,12 +27,11 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_HOST: host
       POSTGRES_PORT: 5432
       POSTGRES_DB: db
       PGSSLMODE: disable
     ports:
-      - '5432:5432'
+      - 5432:5432
     volumes:
       - qjack-sample-data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
