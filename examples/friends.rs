@@ -1,5 +1,8 @@
 // This example app is so crazy because it stores passwords
 // WITHOUT hashing. This should be improved in real apps.
+// In addition, this app uses a literal DB URL for ease. Real apps
+// should construt DB URL from environment variables or secret file
+// or something.
 
 use qjack::{q, model};
 type Result<T> = std::result::Result<T, qjack::Error>;
@@ -13,7 +16,7 @@ type Result<T> = std::result::Result<T, qjack::Error>;
 
 impl Friend {
     async fn create_table_if_not_exists() -> Result<()> {
-        q("CREATE TABLE IF NOT EXISTS users (
+        q("CREATE TABLE IF NOT EXISTS friends (
             id SERIAL PRIMARY KEY,
             name VARCHAR(32) NOT NULL,
             password VARCHAR(64) NOT NULL
@@ -22,21 +25,21 @@ impl Friend {
 
     async fn find_by_id(id: i32) -> Result<Self> {
         q(Self::one("
-            SELECT id, name, password FROM users
+            SELECT id, name, password FROM friends
             WHERE id = $1
         "), id).await
     }
 
     async fn search_by_password(password: &str) -> Result<Option<Self>> {
         q(Self::optional("
-            SELECT id, name, password FROM users
+            SELECT id, name, password FROM friends
             WHERE password = $1
         "), password).await
     }
 
     async fn find_all_with_limit_by_name_like(like: &str, limit: i32) -> Result<Vec<Friend>> {
         q(Self::all("
-            SELECT id, name, password FROM users
+            SELECT id, name, password FROM friends
             WHERE name LIKE $1
             LIMIT $2
         "), like, limit).await
@@ -45,7 +48,7 @@ impl Friend {
     async fn create_many(name_passwords: impl IntoIterator<Item = (String, String)>) -> Result<()> {
         let mut name_passwords = name_passwords.into_iter();
 
-        let mut insert = String::from("INSERT INTO users (name, password) VALUES");
+        let mut insert = String::from("INSERT INTO friends (name, password) VALUES");
         if let Some((first_name, first_password)) = name_passwords.next() {
             insert.push_str(&format!(" ('{}', '{}')", first_name, first_password))
         } else {return Ok(())}
@@ -59,7 +62,7 @@ impl Friend {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    q.jack("postgres://user:password@postgres:5432/db")
+    q.jack("postgres://qjack:password@postgres:5432/db")
         .max_connections(42)
         .await?;
     println!("jacked");
@@ -100,8 +103,8 @@ async fn main() -> Result<()> {
         Some(one) => println!("{}th user has password 'password'", one.id),
     }
 
-    let users_ending_with_a = Friend::find_all_with_limit_by_name_like("%a", 100).await?;
-    println!("{users_ending_with_a:#?}");
+    let friends_ending_with_a = Friend::find_all_with_limit_by_name_like("%a", 100).await?;
+    println!("{friends_ending_with_a:#?}");
 
     Ok(())
 }

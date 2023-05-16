@@ -1,2 +1,0 @@
-CREATE USER `user` PASSWORD `password`;
-CREATE DATABASE db;
