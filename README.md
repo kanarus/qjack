@@ -26,9 +26,10 @@ use qjack::{q, model, Error};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    q.jack("postgres://user:password@localhost:5432/db")
+    q.jack("postgres://user:password@postgres:5432/db")
         .max_connections(42)
         .await?;
+    println!("jacked");
 
     q("CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -55,8 +56,8 @@ async fn main() -> Result<(), Error> {
         ORDER BY name
         LIMIT $2
     "), "%a", 100).await?;
-
-    println!("{users_ending_with_a:?}");
+    
+    println!("{users_ending_with_a:?}: {} rows", users_ending_with_a.len());
     Ok(())
 }
 
