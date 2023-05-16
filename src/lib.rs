@@ -3,12 +3,25 @@
 
 
 /*===== crate feature managements =====*/
+#[cfg(not(any(
+    feature="rt_tokio",
+    feature="rt_async-std",
+)))] compile_error!("
+    You have to activate a `rt_*` feture to select runtime
+");
 #[cfg(any(
     all(feature="rt_tokio", feature="rt_async-std"),
 ))] compile_error!("
     Can't activate multiple `rt_*` features
 ");
 
+#[cfg(not(any(
+    feature="db_postgres",
+    feature="db_mysql",
+    feature="db_mysql",
+)))] compile_error!("
+    You have to activate a `db_*` feature to select database
+");
 #[cfg(any(
     all(feature="db_postgres", feature="db_mysql"),
     all(feature="db_mysql", feature="db_sqlite"),

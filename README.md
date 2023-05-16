@@ -79,6 +79,7 @@ async fn main() -> Result<()> {
 
     Friend::create_table_if_not_exists().await?;
 
+    // ...
 ```
 
 ## `q` magic
