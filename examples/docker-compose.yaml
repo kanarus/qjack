@@ -19,7 +19,7 @@ services:
       - '5433:5432'
     volumes:
       - qjack-sample-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   qjack-sample-data:

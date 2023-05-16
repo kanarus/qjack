@@ -1,3 +1,2 @@
-CREATE USER posgre;
-CREATE DATABASE posgre;
-GRANT ALL PRIVILEGES ON DATABASE posgre TO posgre; \c posgre
+CREATE USER user PASSWORD `password`;
+CREATE DATABASE db;
