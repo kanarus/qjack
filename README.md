@@ -8,103 +8,65 @@
 - available runtime：`tokio`, `async-std`
 
 ## Sample; How to use
+part of `Cargo.toml`
 ```toml
 [dependencies]
 qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 ```
+`src/main.rs` (copied from `qjack/examples/user.rs`)
 ```rust
-use qjack::{q, model};
+use qjack::{q, model, Error};
 
 #[derive(Debug)]
 #[model] struct User {
-    id:       usize,
-    name:     String,
-    password: String,
-}
-
-#[tokio::main]
-async fn main() -> Result<(), qjack::Error> {
-    q.jack("DB_URL")
-        .max_connections(5)
-        .await?;
-
-    q(r#" CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(32) NOT NULL,
-        password VARCHAR(64) NOT NULL
-    ) "#).await?;
-
-    q(r#" INSERT INTO users (name, password) VALUES
-        ('Alice', 'password'),
-        ('Billy', 'password123'),
-        ('Clara', 'wordpass'),
-        ('David', 'passwordpassword'),
-        ('Elena', 'password'),
-        ('Fiona', 'password123456')
-    "#).await?;
-
-    q(r#" UPDATE users SET password = $1 WHERE password = 'password' "#,
-        "newpassword",
-    ).await?;
-
-    let users_ending_with_a = q(User::all(r#"
-        SELECT id, name, password FROM users
-        WHERE name LIKE $1
-        ORDER BY name
-        LIMIT $2
-    "#), "%a", 100).await?;
-
-    println!("{users_ending_with_a:?}");
-    Ok(())
-}
-```
-cf ) sqlx
-```toml
-[dependencies]
-sqlx = { version = "0.6", features = ["runtime-tokio-native-tls", "postgres"] }
-```
-```rust
-#[derive(sqlx::FromRow, Debug)]
-struct User {
     id:       i64,
     name:     String,
     password: String,
 }
 
 #[tokio::main]
-async fn main() -> Result<(), sqlx::Error> {
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect("DB_URL").await?;
+async fn main() -> Result<(), Error> {
+    q.jack("DB_URL")
+        .max_connections(42)
+        .await?;
 
-    pool.execute(r#" CREATE TABLE IF NOT EXISTS users (
+    q("CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(32) NOT NULL,
         password VARCHAR(64) NOT NULL
-    ) "#).await?;
+    ) ").await?;
 
-    pool.execute(r#" INSERT INTO users (name, password) VALUES
+    q("INSERT INTO users (name, password) VALUES
         ('Alice', 'password'),
         ('Billy', 'password123'),
         ('Clara', 'wordpass'),
         ('David', 'passwordpassword'),
         ('Elena', 'password'),
         ('Fiona', 'password123456')
-    "#).await?;
+    ").await?;
 
-    sqlx::query(r#" UPDATE user SET password = $1 WHERE password = 'password' "#)
-        .bind("newpassword")
-        .execute(&pool)
-        .await?;
+    q("UPDATE users SET password = $1 WHERE password = 'password' ",
+        "newpassword",
+    ).await?;
 
-    let users_ending_with_a = sqlx::query_as::<_, User>(r#"
+    let users_ending_with_a = q(User::all("
         SELECT id, name, password FROM users
         WHERE name LIKE $1
         ORDER BY name
         LIMIT $2
-    "#).bind("%a").bind("%a").fetch_all(&pool).await?;
+    "), "%a", 100).await?;
 
     println!("{users_ending_with_a:?}");
     Ok(())
 }
 ```
+
+## `q` magic
+
+- `q.jack("DB_URL") /* config */ .await?` creates connection pool. All queries must be performed after this.
+- `q("query string" /* , param1, param2, ... */ ).await?` accespts 0 ~ 8 params and executes a non-fetch query. This returns `QueryResult`.
+- `q( Model::all("query string") /* , param1, param2, ... */ ).await?` accespts 0 ~ 8 params and executes a fetch-all query. This returns `Vec<Model>`.
+- `q( Model::one("query string") /* param1, param2, ... */ ).await?` accepts 0 ~ 8 params and executes a fetch-one query. This returns `Model`.
+- `q( Model::optional("query string") /* param1, param2, ... */ ).await?` accepts 0 ~ 8 params and executes a fetch-optional query. This returns `Option<Model>`.
+
+Here `Model` means a struct that has `model` attribute.
