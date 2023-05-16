@@ -12,6 +12,7 @@ async fn main() -> Result<(), Error> {
     q.jack("postgres://user:password@host:5432/db")
         .max_connections(42)
         .await?;
+    println!("jacked");
 
     q("CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
