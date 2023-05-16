@@ -51,7 +51,7 @@ impl Future for ConnectingFuture {
     type Output = Result<(), crate::Error>;
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
         match unsafe{self.map_unchecked_mut(|cf| cf.0.as_mut())}.poll(cx) {
-            Poll::Pending => {println!("Pending"); Poll::Pending},
+            Poll::Pending         => Poll::Pending,
             Poll::Ready(Err(err)) => Poll::Ready(Err(err)),
             Poll::Ready(Ok(pool)) => Poll::Ready(CONNECTION_POOL.set(pool).map_err(|_| crate::Error::WorkerCrashed)),
         }

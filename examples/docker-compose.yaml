@@ -4,6 +4,7 @@ services:
   app:
     build:
       context: .
+    container_name: qjack-sample-app
     tty: true
     command: bash
     working_dir: /app
@@ -12,8 +13,9 @@ services:
     depends_on:
       - db
 
-  db:
+  postgres:
     image: postgres:15-alpine
+    container_name: qjack-sample-postgres
     tty: true
     command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
     logging:
