@@ -9,7 +9,7 @@ use qjack::{q, model, Error};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    q.jack("postgres://user:password@host:5432/db")
+    q.jack("postgres://user:password@localhost:5432/db")
         .max_connections(42)
         .await?;
     println!("jacked");

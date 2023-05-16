@@ -21,4 +21,6 @@ RUN apt-get update \
   && echo "ja_JP UTF-8" > /etc/locale.gen \
   && locale-gen
 
+RUN rustup default nightly
+
 WORKDIR /app
