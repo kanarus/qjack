@@ -1,0 +1,3 @@
+CREATE USER posgre;
+CREATE DATABASE posgre;
+GRANT ALL PRIVILEGES ON DATABASE posgre TO posgre; \c posgre

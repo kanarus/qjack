@@ -1,0 +1,28 @@
+version: '3'
+
+x-environment: &environment
+  POSTGRES_USER: posgre
+  POSTGRES_PASSWORD: password
+  POSTGRES_HOST: posgre
+  POSTGRES_PORT: 5432
+  POSTGRES_DATABASE: posgre
+  PGSSLMODE: disable
+
+services:
+  db:
+    image: postgres:15-alpine
+    command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
+    logging:
+      options:
+        max-size: '10k'
+        max-file: '5'
+    environment: *environment
+    ports:
+      - '5433:5432'
+    volumes:
+      - qjack-sample-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d
+
+volumes:
+  qjack-sample-data:
+    driver: local
