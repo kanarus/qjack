@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, qjack::Error>;
 }
 
 impl Friend {
-    async fn create_table_if_exists() -> Result<()> {
+    async fn create_table_if_not_exists() -> Result<()> {
         q("CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(32) NOT NULL,
@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
         .await?;
     println!("jacked");
 
-    Friend::create_table_if_exists().await?;
+    Friend::create_table_if_not_exists().await?;
 
     let friends: Vec<(String, String)> = 'input: {
         println!("Happy jacking! Could you enter data of some of your firends?");

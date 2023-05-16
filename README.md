@@ -8,58 +8,73 @@
 - available runtime：`tokio`, `async-std`
 
 ## Sample; How to use
-part of `Cargo.toml`
 ```toml
 [dependencies]
 qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 ```
-`src/main.rs` (copied from `qjack/examples/user.rs`)
+part of `qjack/examples/user.rs`
 ```rust
-use qjack::{q, model, Error};
-
 #[derive(Debug)]
-#[model] struct User {
-    id:       i64,
+#[model] struct Friend {
+    id:       i32,
     name:     String,
     password: String,
 }
 
+impl Friend {
+    async fn create_table_if_not_exists() -> Result<()> {
+        q("CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(32) NOT NULL,
+            password VARCHAR(64) NOT NULL
+        )").await?; Ok(())
+    }
+
+    async fn find_by_id(id: i32) -> Result<Self> {
+        q(Self::one("
+            SELECT id, name, password FROM users
+            WHERE id = $1
+        "), id).await
+    }
+
+    async fn search_by_password(password: &str) -> Result<Option<Self>> {
+        q(Self::optional("
+            SELECT id, name, password FROM users
+            WHERE password = $1
+        "), password).await
+    }
+
+    async fn find_all_with_limit_by_name_like(like: &str, limit: i32) -> Result<Vec<Friend>> {
+        q(Self::all("
+            SELECT id, name, password FROM users
+            WHERE name LIKE $1
+            LIMIT $2
+        "), like, limit).await
+    }
+
+    async fn create_many(name_passwords: impl IntoIterator<Item = (String, String)>) -> Result<()> {
+        let mut name_passwords = name_passwords.into_iter();
+
+        let mut insert = String::from("INSERT INTO users (name, password) VALUES");
+        if let Some((first_name, first_password)) = name_passwords.next() {
+            insert.push_str(&format!(" ('{}', '{}')", first_name, first_password))
+        } else {return Ok(())}
+        for (name, password) in name_passwords {
+            insert.push_str(&format!(", ('{name}', '{password}')"))
+        }
+
+        q(&*insert).await?; Ok(())
+    }
+}
+
 #[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn main() -> Result<()> {
     q.jack("postgres://user:password@postgres:5432/db")
         .max_connections(42)
         .await?;
     println!("jacked");
 
-    q("CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(32) NOT NULL,
-        password VARCHAR(64) NOT NULL
-    )").await?;
-
-    q("INSERT INTO users (name, password) VALUES
-        ('Alice', 'password'),
-        ('Billy', 'password123'),
-        ('Clara', 'wordpass'),
-        ('David', 'passwordpassword'),
-        ('Elena', 'password'),
-        ('Fiona', 'password123456')
-    ").await?;
-
-    q("UPDATE users SET password = $1 WHERE password = 'password'",
-        "newpassword",
-    ).await?;
-
-    let users_ending_with_a = q(User::all("
-        SELECT id, name, password FROM users
-        WHERE name LIKE $1
-        ORDER BY name
-        LIMIT $2
-    "), "%a", 100).await?;
-    
-    println!("{users_ending_with_a:?}: {} rows", users_ending_with_a.len());
-    Ok(())
-}
+    Friend::create_table_if_not_exists().await?;
 
 ```
 
