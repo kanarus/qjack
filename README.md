@@ -63,10 +63,10 @@ async fn main() -> Result<(), Error> {
 
 ## `q` magic
 
-- `q.jack("DB_URL") /* config */ .await?` creates connection pool. All queries must be performed after this.
+- `q.jack("DB_URL") /* config */ .await?` creates connection pool in background. All queries must be performed after this.
 - `q("query string" /* , param1, param2, ... */ ).await?` executes a non-fetch query. This returns `QueryResult`.
 - `q( Model::all("query string") /* , param1, param2, ... */ ).await?` executes a fetch-all query. This returns `Vec<Model>`.
 - `q( Model::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `Model`.
 - `q( Model::optional("query string") /* , param1, param2, ... */ ).await?` executes a fetch-optional query. This returns `Option<Model>`.
 
-Here `Model` means a struct that has `model` attribute.
+Here `Model` means a struct that has `#[model]` attribute.
