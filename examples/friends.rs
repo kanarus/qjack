@@ -65,11 +65,12 @@ async fn main() -> Result<()> {
     q.jack("postgres://qjack:password@postgres:5432/db")
         .max_connections(42)
         .await?;
-    println!("jacked");
+    println!("Hi, jacked!");
 
     Friend::create_table_if_not_exists().await?;
 
-    let friends: Vec<(String, String)> = 'input: {
+    let friends: Vec<(String, String)> = {
+        println!();
         println!("Happy jacking! Could you enter data of some of your firends?");
         println!("(press q when you stop entering)");
         println!();
@@ -79,17 +80,21 @@ async fn main() -> Result<()> {
             let mut name = String::new();
             stdin().read_line(&mut name).ok();
             name.pop(/* final '\n' */);
-            if name == "q" {break 'input inputs}
+            if name == "q" {break}
 
             print!("password: "); stdout().flush().ok();
             let mut password = String::new();
             stdin().read_line(&mut password).ok();
             password.pop(/* final '\n' */);
-            if password == "q" {break 'input inputs}
+            if password == "q" {break}
 
             inputs.push((name, password));
             println!()
         }
+
+        println!("Ok, thans to input!\n");
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        inputs
     };
     if friends.is_empty() {
         println!("Oh No! You have no friends...");
@@ -98,15 +103,15 @@ async fn main() -> Result<()> {
     Friend::create_many(friends).await?;
 
     let first_user = Friend::find_by_id(1).await?;
-    println!("First user is `{}` with password `{}`", first_user.name, first_user.password);
+    println!("First user is `{}` (password: '{}').", first_user.name, first_user.password);
 
     match Friend::search_by_password("password").await? {
-        None      => println!("No user has password 'password'"),
-        Some(one) => println!("{}th user has password 'password'", one.id),
+        None      => println!("No user has password 'password'."),
+        Some(one) => println!("{}th user `{}` has password 'password'!.", one.id, one.name),
     }
 
     let friends_ending_with_a = Friend::find_all_with_limit_by_name_like("%a", 100).await?;
-    println!("{friends_ending_with_a:#?}");
+    println!("Fiends whose name ends with 'a': {friends_ending_with_a:#?}");
 
     Ok(())
 }
