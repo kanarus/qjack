@@ -74,15 +74,17 @@ async fn main() -> Result<()> {
         println!("(press q when you stop entering)");
         println!();
 
-        let mut inputs = Vec::new(); loop {
-            print!("name: ");
+        let mut inputs = Vec::new(); loop {use std::io::{stdin, stdout, Write};
+            print!("name: "); stdout().flush().ok();
             let mut name = String::new();
-            std::io::stdin().read_line(&mut name).ok();
+            stdin().read_line(&mut name).ok();
+            name.pop(/* final '\n' */);
             if name == "q" {break 'input inputs}
 
-            print!("password: ");
+            print!("password: "); stdout().flush().ok();
             let mut password = String::new();
-            std::io::stdin().read_line(&mut password).ok();
+            stdin().read_line(&mut password).ok();
+            password.pop(/* final '\n' */);
             if password == "q" {break 'input inputs}
 
             inputs.push((name, password));
