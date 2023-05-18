@@ -1,8 +1,12 @@
 mod param;
 mod str_query;
 mod fetch_query;
+mod transaction;
 
-use crate::pool::Config;
+use std::future::Future;
+use crate::{Error, pool::Config};
+use transaction::X;
+
 
 #[allow(non_camel_case_types)]
 pub struct q;
@@ -24,11 +28,18 @@ impl q {
     /// }
     /// 
     /// async fn some_proc() {
-    ///     /* called AFTER `q.jack` */
+    ///     /* called AFTER `q.jack() 〜 .await?` */
     /// }
     /// ```
     #[allow(non_snake_case)]
     pub fn jack<'url>(self, DB_URL: &'url str) -> Config {
         Config::new(DB_URL)
+    }
+
+    pub async fn transaction<F: Future<Output = Result<(), Error>>>(
+        self,
+        f: fn(X) -> F
+    ) -> Result<(), Error> {
+        f(X::new().await?).await
     }
 }

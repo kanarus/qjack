@@ -1,23 +1,30 @@
+#![allow(non_camel_case_types)]
+
 use std::{pin::Pin, future::Future};
 use sqlx::Executor;
 use crate::{__feature__, Error, q, pool};
-use super::param::Param;
+use super::{param::Param, transaction::X};
 
 
-#[allow(non_camel_case_types)]
 impl<'q> FnOnce<(&'q str,)> for q {
     type Output = Pin<Box<dyn Future<Output = Result<__feature__::QueryResult, Error>> + 'q>>;
     extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
         pool().execute(sql)
     }
 }
+impl<'q, 'x:'q> FnOnce<(&'q str,)> for &'x mut X {
+    type Output = Pin<Box<dyn Future<Output = Result<__feature__::QueryResult, Error>> + 'q>>;
+    extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
+        self.0.execute(sql)
+    }
+}
 
-macro_rules! impl_q_str_with_params {
+macro_rules! str_query_with_params {
     ($( $param:ident )+) => {
-        #[allow(non_camel_case_types)]
         impl<'q, $( $param:Param<'q> ),+> FnOnce<(&'q str, $( $param ),+)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<__feature__::QueryResult, Error>> + 'q>>;
-            extern "rust-call" fn call_once(self,
+            extern "rust-call" fn call_once(
+                self,
                 (sql, $( $param ),+): (&'q str, $( $param ),+)
             ) -> Self::Output {
                 pool().execute(sqlx::query(sql)
@@ -25,13 +32,24 @@ macro_rules! impl_q_str_with_params {
                 )
             }
         }
+        impl<'q, 'x:'q, $( $param:Param<'q> ),+> FnOnce<(&'q str, $( $param ),+)> for &'x mut X {
+            type Output = Pin<Box<dyn Future<Output = Result<__feature__::QueryResult, Error>> + 'q>>;
+            extern "rust-call" fn call_once(
+                self,
+                (sql, $( $param ),+): (&'q str, $( $param ),+)
+            ) -> Self::Output {
+                self.0.execute(sqlx::query(sql)
+                    $( .bind($param) )+
+                )
+            }
+        }
     };
 } const _: () = {
-    impl_q_str_with_params!(p1);
-    impl_q_str_with_params!(p1 p2);
-    impl_q_str_with_params!(p1 p2 p3);
-    impl_q_str_with_params!(p1 p2 p3 p4);
-    impl_q_str_with_params!(p1 p2 p3 p4 p5);
-    impl_q_str_with_params!(p1 p2 p3 p4 p5 p6);
-    impl_q_str_with_params!(p1 p2 p3 p4 p5 p6 p7);
+    str_query_with_params!(p1);
+    str_query_with_params!(p1 p2);
+    str_query_with_params!(p1 p2 p3);
+    str_query_with_params!(p1 p2 p3 p4);
+    str_query_with_params!(p1 p2 p3 p4 p5);
+    str_query_with_params!(p1 p2 p3 p4 p5 p6);
+    str_query_with_params!(p1 p2 p3 p4 p5 p6 p7);
 };

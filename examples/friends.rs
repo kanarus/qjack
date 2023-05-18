@@ -92,8 +92,7 @@ async fn main() -> Result<()> {
             println!()
         }
 
-        println!("Ok, thans to input!\n");
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        println!("Ok, thanks!\n");
         inputs
     };
     if friends.is_empty() {
@@ -103,11 +102,11 @@ async fn main() -> Result<()> {
     Friend::create_many(friends).await?;
 
     let first_user = Friend::find_by_id(1).await?;
-    println!("First user is `{}` (password: '{}').", first_user.name, first_user.password);
+    println!("First user is `{}` (password: \"{}\").", first_user.name, first_user.password);
 
     match Friend::search_by_password("password").await? {
-        None      => println!("No user has password 'password'."),
-        Some(one) => println!("{}th user `{}` has password 'password'!.", one.id, one.name),
+        None      => println!("No user has password \"password\"."),
+        Some(one) => println!("{}th user `{}` has password \"password\"!.", one.id, one.name),
     }
 
     let friends_ending_with_a = Friend::find_all_with_limit_by_name_like("%a", 100).await?;
