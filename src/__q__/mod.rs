@@ -43,3 +43,18 @@ impl q {
         f(X::new().await?).await
     }
 }
+
+
+
+
+// #[cfg(test)]
+// async fn __() -> Result<(), Error> {
+//     q.transaction(|mut x| async {
+//         x().await?;
+// 
+//         Ok(())
+//     }).await?;
+// 
+//     Ok(())
+// }
+// 

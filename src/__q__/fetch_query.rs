@@ -41,7 +41,7 @@ impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for &'x mut X {
         )
     }
 }
-macro_rules! impl_q_fetch_all_with_params {
+macro_rules! fetch_all_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchAll<'q, M>, $( $param ),+)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
@@ -83,13 +83,13 @@ macro_rules! impl_q_fetch_all_with_params {
         }
     };
 } const _: () = {
-    impl_q_fetch_all_with_params!(p1);
-    impl_q_fetch_all_with_params!(p1 p2);
-    impl_q_fetch_all_with_params!(p1 p2 p3);
-    impl_q_fetch_all_with_params!(p1 p2 p3 p4);
-    impl_q_fetch_all_with_params!(p1 p2 p3 p4 p5);
-    impl_q_fetch_all_with_params!(p1 p2 p3 p4 p5 p6);
-    impl_q_fetch_all_with_params!(p1 p2 p3 p4 p5 p6 p7);
+    fetch_all_query_with_params!(p1);
+    fetch_all_query_with_params!(p1 p2);
+    fetch_all_query_with_params!(p1 p2 p3);
+    fetch_all_query_with_params!(p1 p2 p3 p4);
+    fetch_all_query_with_params!(p1 p2 p3 p4 p5);
+    fetch_all_query_with_params!(p1 p2 p3 p4 p5 p6);
+    fetch_all_query_with_params!(p1 p2 p3 p4 p5 p6 p7);
 };
 
 
@@ -123,7 +123,7 @@ impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchOne<'q, M>,)> for &'x mut X {
         )
     }
 }
-macro_rules! impl_q_fetch_one_with_params {
+macro_rules! fetch_one_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOne<'q, M>, $( $param ),+)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<M, Error>> + 'q>>;
@@ -161,13 +161,13 @@ macro_rules! impl_q_fetch_one_with_params {
         }
     };
 } const _: () = {
-    impl_q_fetch_one_with_params!(p1);
-    impl_q_fetch_one_with_params!(p1 p2);
-    impl_q_fetch_one_with_params!(p1 p2 p3);
-    impl_q_fetch_one_with_params!(p1 p2 p3 p4);
-    impl_q_fetch_one_with_params!(p1 p2 p3 p4 p5);
-    impl_q_fetch_one_with_params!(p1 p2 p3 p4 p5 p6);
-    impl_q_fetch_one_with_params!(p1 p2 p3 p4 p5 p6 p7);
+    fetch_one_query_with_params!(p1);
+    fetch_one_query_with_params!(p1 p2);
+    fetch_one_query_with_params!(p1 p2 p3);
+    fetch_one_query_with_params!(p1 p2 p3 p4);
+    fetch_one_query_with_params!(p1 p2 p3 p4 p5);
+    fetch_one_query_with_params!(p1 p2 p3 p4 p5 p6);
+    fetch_one_query_with_params!(p1 p2 p3 p4 p5 p6 p7);
 };
 
 impl<'q, M:model+'q> FnOnce<(FetchOptional<'q, M>,)> for q {
@@ -200,7 +200,7 @@ impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchOptional<'q, M>,)> for &'x mut X {
         )
     }
 }
-macro_rules! impl_q_fetch_optional_with_params {
+macro_rules! fetch_optional_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOptional<'q, M>, $( $param ),+)> for q {
             type Output = Pin<Box<dyn Future<Output = Result<Option<M>, Error>> + 'q>>;
@@ -238,11 +238,11 @@ macro_rules! impl_q_fetch_optional_with_params {
         }
     };
 } const _: () = {
-    impl_q_fetch_optional_with_params!(p1);
-    impl_q_fetch_optional_with_params!(p1 p2);
-    impl_q_fetch_optional_with_params!(p1 p2 p3);
-    impl_q_fetch_optional_with_params!(p1 p2 p3 p4);
-    impl_q_fetch_optional_with_params!(p1 p2 p3 p4 p5);
-    impl_q_fetch_optional_with_params!(p1 p2 p3 p4 p5 p6);
-    impl_q_fetch_optional_with_params!(p1 p2 p3 p4 p5 p6 p7);
+    fetch_optional_query_with_params!(p1);
+    fetch_optional_query_with_params!(p1 p2);
+    fetch_optional_query_with_params!(p1 p2 p3);
+    fetch_optional_query_with_params!(p1 p2 p3 p4);
+    fetch_optional_query_with_params!(p1 p2 p3 p4 p5);
+    fetch_optional_query_with_params!(p1 p2 p3 p4 p5 p6);
+    fetch_optional_query_with_params!(p1 p2 p3 p4 p5 p6 p7);
 };
