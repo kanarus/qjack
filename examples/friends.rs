@@ -50,7 +50,7 @@ impl Friend {
 
         let mut insert = String::from("INSERT INTO friends (name, password) VALUES");
         if let Some((first_name, first_password)) = name_passwords.next() {
-            insert.push_str(&format!(" ('{}', '{}')", first_name, first_password))
+            insert.push_str(&format!(" ('{first_name}', '{first_password}')"))
         } else {return Ok(())}
         for (name, password) in name_passwords {
             insert.push_str(&format!(", ('{name}', '{password}')"))
