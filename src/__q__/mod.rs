@@ -38,9 +38,20 @@ impl q {
 
     pub async fn transaction<F: Future<Output = Result<(), Error>>>(
         self,
-        f: fn(X) -> F
+        f: fn(&mut X) -> F
     ) -> Result<(), Error> {
-        f(X::new().await?).await
+        /*
+        
+        let mut tx = pool().begin().await?;
+        let transaction_result = f( X(&mut tx) ).await?;
+        match transaction_result {
+            Commit   => tx.commit(),
+            Rollback => tx.rollback(),
+        }.await?
+        
+        */
+
+        todo!()
     }
 }
 
@@ -50,7 +61,8 @@ impl q {
 // #[cfg(test)]
 // async fn __() -> Result<(), Error> {
 //     q.transaction(|mut x| async {
-//         x().await?;
+//         let x2 = &mut x;
+//         x2("").await?;
 // 
 //         Ok(())
 //     }).await?;
@@ -58,3 +70,15 @@ impl q {
 //     Ok(())
 // }
 // 
+// #[cfg(test)]
+// async fn __(x: &'static mut X) -> Result<(), Error> {
+//     x("").await?;
+//     Ok(())
+// }
+// 
+// #[cfg(test)]
+// async fn __(x: &'static X) -> Result<(), Error> {
+//     // x("").await?;
+//     let _ = x();
+//     Ok(())
+// }

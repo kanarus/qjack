@@ -24,23 +24,23 @@ impl<'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for q {
         )
     }
 }
-impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for &'x mut X {
-    type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
-    extern "rust-call" fn call_once(self, (FetchAll { __as__, sql },): (FetchAll<'q, M>,)) -> Self::Output {
-        Box::pin(
-            Box::pin(
-                self.0.fetch_many(sqlx::query(sql))
-                    .try_filter_map(|step| async move {
-                        Ok(match step {
-                            Either::Left(_)    => None,
-                            Either::Right(row) => M::from_row(&row).ok(),
-                        })
-                    })
-            )
-            .try_collect()
-        )
-    }
-}
+// impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for &'x mut X {
+//     type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
+//     extern "rust-call" fn call_once(self, (FetchAll { __as__, sql },): (FetchAll<'q, M>,)) -> Self::Output {
+//         Box::pin(
+//             Box::pin(
+//                 self.0.fetch_many(sqlx::query(sql))
+//                     .try_filter_map(|step| async move {
+//                         Ok(match step {
+//                             Either::Left(_)    => None,
+//                             Either::Right(row) => M::from_row(&row).ok(),
+//                         })
+//                     })
+//             )
+//             .try_collect()
+//         )
+//     }
+// }
 macro_rules! fetch_all_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchAll<'q, M>, $( $param ),+)> for q {
@@ -62,25 +62,25 @@ macro_rules! fetch_all_query_with_params {
                 )
             }
         }
-        impl<'q, 'x:'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchAll<'q, M>, $( $param ),+)> for &'x mut X {
-            type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
-            extern "rust-call" fn call_once(self,
-                (FetchAll{__as__, sql}, $( $param ),+): (FetchAll<'q, M>, $( $param ),+)
-            ) -> Self::Output {
-                Box::pin(
-                    Box::pin(
-                        self.0.fetch_many(sqlx::query(sql) $( .bind($param) )+)
-                            .try_filter_map(|step| async move {
-                                Ok(match step {
-                                    Either::Left(_)    => None,
-                                    Either::Right(row) => M::from_row(&row).ok(),
-                                })
-                            })
-                    )
-                    .try_collect()
-                )
-            }
-        }
+        // impl<'q, 'x:'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchAll<'q, M>, $( $param ),+)> for &'x mut X {
+        //     type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
+        //     extern "rust-call" fn call_once(self,
+        //         (FetchAll{__as__, sql}, $( $param ),+): (FetchAll<'q, M>, $( $param ),+)
+        //     ) -> Self::Output {
+        //         Box::pin(
+        //             Box::pin(
+        //                 self.0.fetch_many(sqlx::query(sql) $( .bind($param) )+)
+        //                     .try_filter_map(|step| async move {
+        //                         Ok(match step {
+        //                             Either::Left(_)    => None,
+        //                             Either::Right(row) => M::from_row(&row).ok(),
+        //                         })
+        //                     })
+        //             )
+        //             .try_collect()
+        //         )
+        //     }
+        // }
     };
 } const _: () = {
     fetch_all_query_with_params!(p1);
@@ -108,21 +108,21 @@ impl<'q, M:model+'q> FnOnce<(FetchOne<'q, M>,)> for q {
         )
     }
 }
-impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchOne<'q, M>,)> for &'x mut X {
-    type Output = Pin<Box<dyn Future<Output = Result<M, Error>> + 'q>>;
-    extern "rust-call" fn call_once(self, (FetchOne { __as__, sql },): (FetchOne<'q, M>,)) -> Self::Output {
-        Box::pin(
-            self.0.fetch_optional(sqlx::query(sql))
-                .and_then(|row| match row {
-                    Some(row) => match M::from_row(&row) {
-                        Ok(m)  => future::ok(m),
-                        Err(e) => future::err(e),
-                    },
-                    None => future::err(Error::RowNotFound),
-                })
-        )
-    }
-}
+// impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchOne<'q, M>,)> for &'x mut X {
+//     type Output = Pin<Box<dyn Future<Output = Result<M, Error>> + 'q>>;
+//     extern "rust-call" fn call_once(self, (FetchOne { __as__, sql },): (FetchOne<'q, M>,)) -> Self::Output {
+//         Box::pin(
+//             self.0.fetch_optional(sqlx::query(sql))
+//                 .and_then(|row| match row {
+//                     Some(row) => match M::from_row(&row) {
+//                         Ok(m)  => future::ok(m),
+//                         Err(e) => future::err(e),
+//                     },
+//                     None => future::err(Error::RowNotFound),
+//                 })
+//         )
+//     }
+// }
 macro_rules! fetch_one_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOne<'q, M>, $( $param ),+)> for q {
@@ -142,23 +142,23 @@ macro_rules! fetch_one_query_with_params {
                 )
             }
         }
-        impl<'q, 'x:'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOne<'q, M>, $( $param ),+)> for &'x mut X {
-            type Output = Pin<Box<dyn Future<Output = Result<M, Error>> + 'q>>;
-            extern "rust-call" fn call_once(self,
-                (FetchOne{__as__, sql}, $( $param ),+): (FetchOne<'q, M>, $( $param ),+)
-            ) -> Self::Output {
-                Box::pin(
-                    self.0.fetch_optional(sqlx::query(sql) $(.bind($param))+)
-                        .and_then(|row| match row {
-                            Some(row) => match M::from_row(&row) {
-                                Ok(m)  => future::ok(m),
-                                Err(e) => future::err(e),
-                            },
-                            None => future::err(Error::RowNotFound),
-                        })
-                )
-            }
-        }
+        // impl<'q, 'x:'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOne<'q, M>, $( $param ),+)> for &'x mut X {
+        //     type Output = Pin<Box<dyn Future<Output = Result<M, Error>> + 'q>>;
+        //     extern "rust-call" fn call_once(self,
+        //         (FetchOne{__as__, sql}, $( $param ),+): (FetchOne<'q, M>, $( $param ),+)
+        //     ) -> Self::Output {
+        //         Box::pin(
+        //             self.0.fetch_optional(sqlx::query(sql) $(.bind($param))+)
+        //                 .and_then(|row| match row {
+        //                     Some(row) => match M::from_row(&row) {
+        //                         Ok(m)  => future::ok(m),
+        //                         Err(e) => future::err(e),
+        //                     },
+        //                     None => future::err(Error::RowNotFound),
+        //                 })
+        //         )
+        //     }
+        // }
     };
 } const _: () = {
     fetch_one_query_with_params!(p1);
@@ -185,21 +185,21 @@ impl<'q, M:model+'q> FnOnce<(FetchOptional<'q, M>,)> for q {
         )
     }
 }
-impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchOptional<'q, M>,)> for &'x mut X {
-    type Output = Pin<Box<dyn Future<Output = Result<Option<M>, Error>> + 'q>>;
-    extern "rust-call" fn call_once(self, (FetchOptional { __as__, sql },): (FetchOptional<'q, M>,)) -> Self::Output {
-        Box::pin(
-            self.0.fetch_optional(sqlx::query(sql))
-                .and_then(|row| match row {
-                    Some(r) => match M::from_row(&r) {
-                        Ok(m)  => future::ok(Some(m)),
-                        Err(e) => future::err(e)
-                    }
-                    None => future::ok(None)
-                })
-        )
-    }
-}
+// impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchOptional<'q, M>,)> for &'x mut X {
+//     type Output = Pin<Box<dyn Future<Output = Result<Option<M>, Error>> + 'q>>;
+//     extern "rust-call" fn call_once(self, (FetchOptional { __as__, sql },): (FetchOptional<'q, M>,)) -> Self::Output {
+//         Box::pin(
+//             self.0.fetch_optional(sqlx::query(sql))
+//                 .and_then(|row| match row {
+//                     Some(r) => match M::from_row(&r) {
+//                         Ok(m)  => future::ok(Some(m)),
+//                         Err(e) => future::err(e)
+//                     }
+//                     None => future::ok(None)
+//                 })
+//         )
+//     }
+// }
 macro_rules! fetch_optional_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOptional<'q, M>, $( $param ),+)> for q {
@@ -219,23 +219,23 @@ macro_rules! fetch_optional_query_with_params {
                 )
             }
         }
-        impl<'q, 'x:'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOptional<'q, M>, $( $param ),+)> for &'x mut X {
-            type Output = Pin<Box<dyn Future<Output = Result<Option<M>, Error>> + 'q>>;
-            extern "rust-call" fn call_once(self,
-                (FetchOptional{__as__, sql}, $( $param ),+): (FetchOptional<'q, M>, $( $param ),+)
-            ) -> Self::Output {
-                Box::pin(
-                    self.0.fetch_optional(sqlx::query(sql) $( .bind($param) )+)
-                        .and_then(|row| match row {
-                            Some(r) => match M::from_row(&r) {
-                                Ok(m)  => future::ok(Some(m)),
-                                Err(e) => future::err(e)
-                            }
-                            None => future::ok(None)
-                        })
-                )
-            }
-        }
+        // impl<'q, 'x:'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchOptional<'q, M>, $( $param ),+)> for &'x mut X {
+        //     type Output = Pin<Box<dyn Future<Output = Result<Option<M>, Error>> + 'q>>;
+        //     extern "rust-call" fn call_once(self,
+        //         (FetchOptional{__as__, sql}, $( $param ),+): (FetchOptional<'q, M>, $( $param ),+)
+        //     ) -> Self::Output {
+        //         Box::pin(
+        //             self.0.fetch_optional(sqlx::query(sql) $( .bind($param) )+)
+        //                 .and_then(|row| match row {
+        //                     Some(r) => match M::from_row(&r) {
+        //                         Ok(m)  => future::ok(Some(m)),
+        //                         Err(e) => future::err(e)
+        //                     }
+        //                     None => future::ok(None)
+        //                 })
+        //         )
+        //     }
+        // }
     };
 } const _: () = {
     fetch_optional_query_with_params!(p1);
