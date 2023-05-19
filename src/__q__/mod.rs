@@ -32,8 +32,8 @@ impl q {
     /// }
     /// ```
     #[allow(non_snake_case)]
-    pub fn jack<'url>(self, DB_URL: &'url str) -> Config {
-        Config::new(DB_URL)
+    pub fn jack(self, DB_URL: impl ToString) -> Config {
+        Config::new(DB_URL.to_string())
     }
 
     pub async fn transaction<F: Future<Output = Result<(), Error>>>(

@@ -24,8 +24,8 @@ pub struct Config {
         self
     }
 } impl Config {
-    pub(crate) fn new(DB_URL: &str) -> Self {
-        Self { DB_URL: DB_URL.to_string(),
+    pub(crate) fn new(DB_URL: String) -> Self {
+        Self { DB_URL,
             max_connections: None,
         }
     }
