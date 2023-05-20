@@ -7,6 +7,8 @@ use std::{future::Future, pin::Pin};
 use crate::{Error, pool::Config, __feature__};
 use transaction::X;
 
+use self::transaction::TransactionResult;
+
 pub(crate) type QueryOutput<'q> = Pin<Box<dyn 'q + Future<Output = Result<__feature__::QueryResult, Error>>>>;
 pub(crate) type FetchQueryResult<'q, Fetched> = Pin<Box<dyn 'q + Future<Output = Result<Fetched, Error>>>>;
 
@@ -39,22 +41,18 @@ impl q {
         Config::new(DB_URL.to_string())
     }
 
-    pub async fn transaction<F: Future<Output = Result<(), Error>>>(
+    pub async fn transaction<F: Future<Output = Result<TransactionResult, Error>>>(
         self,
-        f: fn(&mut X) -> F
+        proc: fn(&mut X) -> F
     ) -> Result<(), Error> {
-        /*
-        
-        let mut tx = pool().begin().await?;
-        let transaction_result = f( X(&mut tx) ).await?;
-        match transaction_result {
-            Commit   => tx.commit(),
-            Rollback => tx.rollback(),
-        }.await?
-        
-        */
+        let mut x = X::new().await?;
+        let transaction_result = proc(&mut x).await?;
 
-        todo!()
+        let tx = x.0;
+        match transaction_result {
+            TransactionResult::Commit   => tx.commit().await,
+            TransactionResult::Rollback => tx.rollback().await,
+        }
     }
 }
 
@@ -67,6 +65,7 @@ mod __ {
     use super::transaction::{X, TransactionResult};
 
     async fn __(x: &mut X) -> Result<TransactionResult, Error> {
+        x("").await?;
         x("").await?;
 
         x.commit()

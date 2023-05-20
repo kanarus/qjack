@@ -29,7 +29,7 @@ impl<'q> FnMut<(&'q str,)> for X {
 macro_rules! str_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, $( $param:Param<'q> ),+> FnOnce<(&'q str, $( $param ),+)> for q {
-            type Output = Pin<Box<dyn Future<Output = Result<__feature__::QueryResult, Error>> + 'q>>;
+            type Output = QueryOutput<'q>;
             extern "rust-call" fn call_once(
                 self,
                 (sql, $( $param ),+): (&'q str, $( $param ),+)
@@ -40,7 +40,32 @@ macro_rules! str_query_with_params {
             }
         }
 
-        
+        impl<'q, $( $param:Param<'q> ),+> FnOnce<(&'q str, $( $param ),+)> for X {
+            type Output = QueryOutput<'q>;
+            extern "rust-call" fn call_once(
+                mut self,
+                (sql, $( $param ),+): (&'q str, $( $param ),+)
+            ) -> Self::Output {
+                Box::pin(async move {
+                    self.0.execute(
+                        sqlx::query(sql)
+                            $( .bind($param) )+
+                    ).await
+                })
+            }
+        }
+        impl<'q, $( $param:Param<'q> ),+> FnMut<(&'q str, $( $param ),+ )> for X {
+            extern "rust-call" fn call_mut(
+                &mut self,
+                (sql, $( $param ),+): (&'q str, $( $param ),+)
+            ) -> Self::Output {
+                let output = self.0.execute(
+                    sqlx::query(sql)
+                        $( .bind($param) )+
+                );
+                unsafe {std::mem::transmute(output)}
+            }
+        }
     };
 } const _: () = {
     str_query_with_params!(p1);
