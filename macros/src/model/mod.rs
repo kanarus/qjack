@@ -5,29 +5,13 @@
 mod attributes;
 use attributes::{parse_child_attributes, parse_container_attributes, rename_all};
 
-use quote::{quote, format_ident};
+use quote::{quote};
 use proc_macro2::{TokenStream, Span};
 use syn::{Error, parse2, ItemStruct, Lifetime, parse_quote, Stmt, Expr};
 
 pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
     let input = parse2::<ItemStruct>(input)?;
-
-    let original_input = {
-        let mut input = input.clone();
-
-        let mut attrs = Vec::new();
-        for attr in input.attrs {
-            if attr.path.get_ident().is_some_and(|ident| ident == &format_ident!("model")) {
-                // skip (because this is me)
-            } else {
-                attrs.push(attr)
-            }
-        }
-        input.attrs = attrs;
-
-        input
-    };
-    let original_generics = original_input.clone().generics;
+    let original_generics = input.clone().generics;
 
     let fields = input.fields;
     let ident = &input.ident;
@@ -132,7 +116,5 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
 
         #[automatically_derived]
         impl #original_generics ::qjack::model for #ident #type_generics {}
-
-        #original_input
     })
 }

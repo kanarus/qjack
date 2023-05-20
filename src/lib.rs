@@ -83,22 +83,22 @@ mod __feature__ {
 /*===== modules =====*/
 mod pool;
 mod query;
-mod __model__;
+mod model;
 mod __q__;
 
 
 /*===== visibility::pub =====*/
 pub use __q__::{q};
-pub use __model__::{model};
+pub use model::{Model};
 
 
 /*===== visibility::pub(crate) =====*/
 pub(crate) use pool::{pool};
-pub(crate) use __model__::{FetchAll, FetchOne, FetchOptional};
+pub(crate) use model::{FetchAll, FetchOne, FetchOptional};
 
 
 /*===== reexports =====*/
-pub use qjack_macros::model;
+pub use qjack_macros::Model;
 
 pub use sqlx::Error;
 

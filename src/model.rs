@@ -3,18 +3,18 @@ use std::marker::PhantomData;
 use sqlx::FromRow;
 use crate::__feature__;
 
-pub struct FetchAll<'q, M: model> {
+pub struct FetchAll<'q, M: Model> {
     pub(crate) __as__:PhantomData<fn()->M>, pub(crate) sql: &'q str
 }
-pub struct FetchOne<'q, M: model> {
+pub struct FetchOne<'q, M: Model> {
     pub(crate) __as__:PhantomData<fn()->M>, pub(crate) sql: &'q str
 }
-pub struct FetchOptional<'q, M: model> {
+pub struct FetchOptional<'q, M: Model> {
     pub(crate) __as__:PhantomData<fn()->M>, pub(crate) sql: &'q str
 }
 
 #[allow(non_camel_case_types)]
-pub trait model: for<'r> FromRow<'r, __feature__::Row> {
+pub trait Model: for<'r> FromRow<'r, __feature__::Row> {
     fn all<'q>(sql: &'q str) -> FetchAll<'q, Self> {
         FetchAll { sql, __as__:PhantomData }
     }

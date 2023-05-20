@@ -4,11 +4,11 @@
 // should construt DB URL from environment variables or secret file
 // or something.
 
-use qjack::{q, model};
+use qjack::{q, Model};
 type Result<T> = std::result::Result<T, qjack::Error>;
 
-#[derive(Debug)]
-#[model] struct Friend {
+#[derive(Model, Debug)]
+struct Friend {
     id:       i32,
     name:     String,
     password: String,
