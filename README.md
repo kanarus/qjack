@@ -11,6 +11,7 @@
 ```toml
 [dependencies]
 qjack = { version = "0.1.0", features = ["rt_tokio", "db_postgres"] }
+# (this is default features)
 ```
 part of `sample/src/main.rs`
 ```rust

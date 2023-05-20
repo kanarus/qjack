@@ -30,7 +30,7 @@ qjack_macros = { version = "0.1.0", path = "macros" }
 
 
 [features]
-default = []
+default = ["rt_tokio", "db_postgres"]
 
 rt_tokio = ["sqlx/runtime-tokio-native-tls"]
 rt_async-std = ["sqlx/runtime-async-std-native-tls"]
