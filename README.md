@@ -4,14 +4,14 @@
 
 ## ergonomic sqlx wrapper for *nightly* Rust
 - nightly only
+- macro free
 - available DB：PostgreSQL, MySQL, SQLite
 - available runtime：`tokio`, `async-std`
 
 ## Sample; How to use
 ```toml
 [dependencies]
-qjack = { version = "0.1.0", features = ["rt_tokio", "db_postgres"] }
-# (this is default features)
+qjack = { version = "0.1.1", features = ["rt_tokio", "db_postgres"] }
 ```
 part of `sample/src/main.rs`
 ```rust

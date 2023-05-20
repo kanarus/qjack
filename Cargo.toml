@@ -10,7 +10,7 @@ members = [
 
 [package]
 name = "qjack"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["kanarus <kanarus786@gmail.com>"]
 description = "ergonomic sqlx wrapper"
@@ -30,7 +30,7 @@ qjack_macros = { version = "0.1.0", path = "macros" }
 
 
 [features]
-default = ["rt_tokio", "db_postgres"]
+default = []
 
 rt_tokio = ["sqlx/runtime-tokio-native-tls"]
 rt_async-std = ["sqlx/runtime-async-std-native-tls"]

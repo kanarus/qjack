@@ -1,0 +1,1 @@
+cargo publish --no-verify
