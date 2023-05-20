@@ -5,7 +5,7 @@ $ docker compose up
 $ docker-compose up
 ```
 2.
-(In another terminal window)
+(In another tab)
 ```sh
 $ docker compose exec app bash
 # or
@@ -14,7 +14,7 @@ $ docker-compose exec app bash
 3.
 ```sh
 /app$ rustc --version
-# check that default toolchain is set to nightly
+# check that default toolchain is nightly
 ```
 4.
 ```sh

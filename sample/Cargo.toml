@@ -1,0 +1,8 @@
+[package]
+name = "qjack_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
+tokio = { version = "1", features = ["macros"] }

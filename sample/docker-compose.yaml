@@ -4,20 +4,20 @@ services:
   app:
     build:
       context: .
-    container_name: qjack-example-app
+    container_name: qjack-sample-app
     tty: true
     command: bash
     working_dir: /app
     ports:
       - 3000:3000
     volumes:
-      - ../:/app
+      - ./:/app
     depends_on:
       - postgres
 
   postgres:
     image: postgres:15-alpine
-    container_name: qjack-example-postgres
+    container_name: qjack-sample-postgres
     tty: true
     command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
     logging:
@@ -33,10 +33,9 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - qjack-example-data:/var/lib/postgresql/data
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - qjack-sample-data:/var/lib/postgresql/data
 
 volumes:
   qjack-example-data:
-    name: qjack-example-data
+    name: qjack-sample-data
     driver: local

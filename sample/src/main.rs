@@ -1,4 +1,4 @@
-// This example app is so crazy because it stores passwords
+// This sample app is so crazy because it stores passwords
 // WITHOUT hashing. This should be improved in real apps.
 // In addition, this app uses a literal DB URL for ease. Real apps
 // should construt DB URL from environment variables or secret file
