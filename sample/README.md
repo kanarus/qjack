@@ -19,6 +19,7 @@ $ docker-compose exec app bash
 ```
 4.
 ```sh
-/app$ cargo run --example ＜example name＞
-# takes some times to updating crates.io index and compiling
+/app$ cargo run
+# takes some time to updating crates.io index and compiling
+# (`--release` will takes crazily long time)
 ```
