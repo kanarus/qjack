@@ -4,8 +4,7 @@ $ docker compose up
 # or
 $ docker-compose up
 ```
-2.
-(In another tab)
+2.（In another tab）
 ```sh
 $ docker compose exec app bash
 # or
