@@ -10,9 +10,9 @@
 ## Sample; How to use
 ```toml
 [dependencies]
-qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
+qjack = { version = "0.1.0", features = ["rt_tokio", "db_postgres"] }
 ```
-part of `qjack/examples/friends.rs`
+part of `sample/src/main.rs`
 ```rust
 use qjack::{q, Model};
 type Result<T> = std::result::Result<T, qjack::Error>;
