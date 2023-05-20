@@ -3,9 +3,12 @@ mod str_query;
 mod fetch_query;
 mod transaction;
 
-use std::future::Future;
-use crate::{Error, pool::Config};
+use std::{future::Future, pin::Pin};
+use crate::{Error, pool::Config, __feature__};
 use transaction::X;
+
+pub(crate) type QueryOutput<'q> = Pin<Box<dyn 'q + Future<Output = Result<__feature__::QueryResult, Error>>>>;
+pub(crate) type FetchQueryResult<'q, Fetched> = Pin<Box<dyn 'q + Future<Output = Result<Fetched, Error>>>>;
 
 
 #[allow(non_camel_case_types)]
@@ -58,27 +61,15 @@ impl q {
 
 
 
-// #[cfg(test)]
-// async fn __() -> Result<(), Error> {
-//     q.transaction(|mut x| async {
-//         let x2 = &mut x;
-//         x2("").await?;
-// 
-//         Ok(())
-//     }).await?;
-// 
-//     Ok(())
-// }
-// 
-// #[cfg(test)]
-// async fn __(x: &'static mut X) -> Result<(), Error> {
-//     x("").await?;
-//     Ok(())
-// }
-// 
-// #[cfg(test)]
-// async fn __(x: &'static X) -> Result<(), Error> {
-//     // x("").await?;
-//     let _ = x();
-//     Ok(())
-// }
+#[cfg(test)]
+mod __ {
+    use crate::Error;
+    use super::transaction::{X, TransactionResult};
+
+    async fn __(x: &mut X) -> Result<TransactionResult, Error> {
+        x("").await?;
+
+        x.commit()
+    }
+
+}
