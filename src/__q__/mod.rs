@@ -41,18 +41,13 @@ impl q {
         Config::new(DB_URL.to_string())
     }
 
-    pub async fn transaction<F: Future<Output = Result<TransactionResult, Error>>>(
-        self,
-        proc: fn(&mut X) -> F
-    ) -> Result<(), Error> {
-        let mut x = X::new().await?;
-        let transaction_result = proc(&mut x).await?;
-
-        let tx = x.0;
-        match transaction_result {
-            TransactionResult::Commit   => tx.commit().await,
-            TransactionResult::Rollback => tx.rollback().await,
-        }
+    pub async fn transaction<'f, 'x,
+        Proc: FnOnce(X) -> Fut,
+        Fut: 'f + Future<Output = Result<TransactionResult, Error>>
+    >(self, proc: Proc) -> Result<(), Error> {
+        let x = X::new().await?;
+        let _: TransactionResult = proc(x).await?;
+        Ok(())
     }
 }
 
@@ -64,11 +59,10 @@ mod __ {
     use crate::Error;
     use super::transaction::{X, TransactionResult};
 
-    async fn __(x: &mut X) -> Result<TransactionResult, Error> {
+    async fn __(mut x: X) -> Result<TransactionResult, Error> {
         x("").await?;
         x("").await?;
 
-        x.commit()
+        x.commit().await
     }
-
 }

@@ -10,10 +10,12 @@ pub struct X(
     pub(crate) sqlx::Transaction<'static, __feature__::DB>
 );
 impl X {
-    pub fn commit(&mut self) -> Result<TransactionResult, Error> {
+    pub async fn commit(self) -> Result<TransactionResult, Error> {
+        self.0.commit().await?;
         Ok(TransactionResult::Commit)
     }
-    pub fn rollback(&mut self) -> Result<TransactionResult, Error> {
+    pub async fn rollback(self) -> Result<TransactionResult, Error> {
+        self.0.rollback().await?;
         Ok(TransactionResult::Rollback)
     }
 }
