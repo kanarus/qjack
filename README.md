@@ -11,7 +11,7 @@
 ## Sample; How to use
 ```toml
 [dependencies]
-qjack = { version = "0.1.1", features = ["rt_tokio", "db_postgres"] }
+qjack = { version = "0.1.2", features = ["rt_tokio", "db_postgres"] }
 ```
 part of `sample/src/main.rs`
 ```rust
@@ -61,7 +61,7 @@ impl Friend {
 
         let mut insert = String::from("INSERT INTO friends (name, password) VALUES");
         if let Some((first_name, first_password)) = name_passwords.next() {
-            insert.push_str(&format!(" ('{}', '{}')", first_name, first_password))
+            insert.push_str(&format!(" ('{first_name}', '{first_password}')"))
         } else {return Ok(())}
         for (name, password) in name_passwords {
             insert.push_str(&format!(", ('{name}', '{password}')"))
