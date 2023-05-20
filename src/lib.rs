@@ -21,7 +21,7 @@
 #[cfg(not(any(
     feature="db_postgres",
     feature="db_mysql",
-    feature="db_mysql",
+    feature="db_sqlite",
 )))] compile_error!("
     You have to activate a `db_*` feature to select database
 ");

@@ -3,7 +3,7 @@ members = [
     ".",
     "macros",
 
-    # ↓ comment out just before publishing
+    # ↓ comment out before publishing
     # "sample"
 ]
 
