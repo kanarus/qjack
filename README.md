@@ -93,6 +93,5 @@ async fn main() -> Result<()> {
 
 Here `M` means a struct that derives `Model`.
 
-
 ## LICENSE
 `qjack` is licensed under [MIT LICENSE](https://github.com/kana-rus/qjack/blob/main/LICENSE) or [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
