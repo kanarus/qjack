@@ -4,8 +4,10 @@ $ docker compose up
 # or
 $ docker-compose up
 ```
-2.（In another tab）
+2.
 ```sh
+# (in another tab)
+
 $ docker compose exec app bash
 # or
 $ docker-compose exec app bash
