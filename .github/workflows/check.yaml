@@ -1,0 +1,34 @@
+name: check
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        rt: [tokio, async-std]
+        db: [postgres, mysql, sqlite]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile:   minimal
+          override:  true
+
+      - uses: Swatinem/rust-cache@v1
+        with:
+          key: ${{ runner.os }}-check-${{ matrix.runtime }}-${{ matrix.tls }}
+      
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: >
+            --features rt_${{ matrix.rt }},db_${{ matrix.db }}

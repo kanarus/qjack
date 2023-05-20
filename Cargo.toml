@@ -4,7 +4,7 @@ members = [
     "macros",
 
     # ↓ comment out just before publishing
-    "sample"
+    # "sample"
 ]
 
 
