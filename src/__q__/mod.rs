@@ -4,10 +4,8 @@ mod fetch_query;
 mod transaction;
 
 use std::{future::Future, pin::Pin};
+use transaction::{X, TransactionResult};
 use crate::{Error, pool::Config, __feature__};
-use transaction::X;
-
-use self::transaction::TransactionResult;
 
 pub(crate) type QueryOutput<'q> = Pin<Box<dyn 'q + Future<Output = Result<__feature__::QueryResult, Error>>>>;
 pub(crate) type FetchQueryOutput<'q, Fetched> = Pin<Box<dyn 'q + Future<Output = Result<Fetched, Error>>>>;
@@ -17,7 +15,7 @@ pub(crate) type FetchQueryOutput<'q, Fetched> = Pin<Box<dyn 'q + Future<Output =
 pub struct q;
 
 impl q {
-    /// Establish connection pool with given configuration.
+    /// Create connection pool with given configuration.
     /// 
     /// **ALL** queries **MUST** be executed **AFTER** this
     /// 
@@ -41,7 +39,45 @@ impl q {
         Config::new(DB_URL.to_string())
     }
 
-    pub async fn transaction<'f, 'x,
+    /// Perform a transaction. In current version, this is `unsafe` function for a technical reason.
+    /// 
+    /// <br/>
+    /// 
+    /// ```ignore
+    /// #[Payload(JSON)]
+    /// struct TransferRequest {
+    ///     from: Account,
+    ///     to:   Account,
+    ///     ammount: u128,
+    /// }
+    /// 
+    /// async fn transfer(c: Context, req: TransferRequest) -> Result<()> {
+    ///     let TransferRequest {from, to, ammount} = req;
+    /// 
+    ///     unsafe {q.transaction(|mut x| async {
+    ///         if let Err(e) = x("
+    ///             UPDATE accounts
+    ///             SET balance = balance - $1
+    ///             WHERE id = $2 AND name = $3
+    ///         ", ammount, from.id, from.name).await {
+    ///             tracing::error!("Error in subtracting balance: {e}");
+    ///             return x.rollback().await
+    ///         }
+    /// 
+    ///         if let Err(e) = x("
+    ///             UPDATE accounts
+    ///             SET balance = balance + $1
+    ///             WHERE id = $2 AND name = $3   
+    ///         ", ammount, to.id, to.name).await {
+    ///             tracing::error!("Error in add balance: {e}");
+    ///             return x.rollback().await
+    ///         }
+    /// 
+    ///         x.commit().await
+    ///     })}.await
+    /// }
+    /// ```
+    pub async unsafe fn transaction<'f,
         Proc: FnOnce(X) -> Fut,
         Fut: 'f + Future<Output = Result<TransactionResult, Error>>
     >(self, proc: Proc) -> Result<(), Error> {
