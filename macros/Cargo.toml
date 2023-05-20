@@ -2,6 +2,15 @@
 name = "qjack_macros"
 version = "0.1.0"
 edition = "2021"
+authors = ["kanarus <kanarus786@gmail.com>"]
+description = "macros for qjack"
+documentation = "https://docs.rs/qjack_macros/"
+homepage = "https://crates.io/crates/qjack_macros"
+repository = "https://github.com/kana-rus/qjack_macros"
+readme = "../README.md"
+keywords = ["database", "async", "postgres", "mysql", "sqlite"]
+categories = ["database", "asynchronous"]
+license = "MIT"
 
 [lib]
 proc-macro = true

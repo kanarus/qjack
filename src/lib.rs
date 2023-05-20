@@ -1,3 +1,6 @@
+#![doc(html_root_url = "https://docs.rs/ohkami/0.1.0")]
+
+
 /*===== compiler features =====*/
 #![feature(unboxed_closures, fn_traits)]
 

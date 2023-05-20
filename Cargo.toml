@@ -3,6 +3,7 @@ members = [
     ".",
     "macros",
 
+    # ↓ comment out just before publishing
     "sample"
 ]
 
@@ -11,6 +12,15 @@ members = [
 name = "qjack"
 version = "0.1.0"
 edition = "2021"
+authors = ["kanarus <kanarus786@gmail.com>"]
+description = "ergonomic sqlx wrapper"
+documentation = "https://docs.rs/qjack/"
+homepage = "https://crates.io/crates/qjack"
+repository = "https://github.com/kana-rus/qjack"
+readme = "./README.md"
+keywords = ["database", "async", "postgres", "mysql", "sqlite"]
+categories = ["database", "asynchronous"]
+license = "MIT"
 
 
 [dependencies]
