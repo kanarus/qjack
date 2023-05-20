@@ -74,9 +74,6 @@ mod __feature__ {
     pub(crate) use sqlx::mysql::MySqlQueryResult as QueryResult;
     #[cfg(feature="db_sqlite")]
     pub(crate) use sqlx::sqlite::SqliteQueryResult as QueryResult;
-
-    // #[cfg(feature="rt_tokio")]
-    // pub(crate) use to;
 }
 
 

@@ -5,7 +5,7 @@
 mod attributes;
 use attributes::{parse_child_attributes, parse_container_attributes, rename_all};
 
-use quote::{quote};
+use quote::quote;
 use proc_macro2::{TokenStream, Span};
 use syn::{Error, parse2, ItemStruct, Lifetime, parse_quote, Stmt, Expr};
 
@@ -115,6 +115,6 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
         }
 
         #[automatically_derived]
-        impl #original_generics ::qjack::model for #ident #type_generics {}
+        impl #original_generics ::qjack::Model for #ident #type_generics {}
     })
 }

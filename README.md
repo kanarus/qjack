@@ -14,11 +14,11 @@ qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 ```
 part of `qjack/examples/friends.rs`
 ```rust
-use qjack::{q, model};
+use qjack::{q, Model};
 type Result<T> = std::result::Result<T, qjack::Error>;
 
-#[derive(Debug)]
-#[model] struct Friend {
+#[derive(Model, Debug)]
+struct Friend {
     id:       i32,
     name:     String,
     password: String,
@@ -86,8 +86,8 @@ async fn main() -> Result<()> {
 
 - `q.jack("DB_URL") /* config */ .await?` creates connection pool in background. All queries must be performed after this.
 - `q("query string" /* , param1, param2, ... */ ).await?` executes a non-fetch query. This returns `QueryResult`.
-- `q( Model::all("query string") /* , param1, param2, ... */ ).await?` executes a fetch-all query. This returns `Vec<Model>`.
-- `q( Model::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `Model`.
-- `q( Model::optional("query string") /* , param1, param2, ... */ ).await?` executes a fetch-optional query. This returns `Option<Model>`.
+- `q( M::all("query string") /* , param1, param2, ... */ ).await?` executes a fetch-all query. This returns `Vec<M>`.
+- `q( M::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `M`.
+- `q( M::optional("query string") /* , param1, param2, ... */ ).await?` executes a fetch-optional query. This returns `Option<M>`.
 
-Here `Model` means a `#[model] struct`.
+Here `M` means a struct that derives `Model`.
