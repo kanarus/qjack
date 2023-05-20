@@ -10,7 +10,7 @@ use transaction::X;
 use self::transaction::TransactionResult;
 
 pub(crate) type QueryOutput<'q> = Pin<Box<dyn 'q + Future<Output = Result<__feature__::QueryResult, Error>>>>;
-pub(crate) type FetchQueryResult<'q, Fetched> = Pin<Box<dyn 'q + Future<Output = Result<Fetched, Error>>>>;
+pub(crate) type FetchQueryOutput<'q, Fetched> = Pin<Box<dyn 'q + Future<Output = Result<Fetched, Error>>>>;
 
 
 #[allow(non_camel_case_types)]

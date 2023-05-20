@@ -1,18 +1,18 @@
 #![allow(non_camel_case_types)]
 
 use std::{pin::Pin, future::Future};
-use futures_util::{TryStreamExt, TryFutureExt, future};
+use futures_util::{TryStreamExt, TryFutureExt, future, StreamExt};
 use sqlx::{Executor, Either};
 use crate::{Error, model, FetchAll, FetchOne, FetchOptional, q, pool};
-use super::{param::Param, transaction::X};
+use super::{param::Param, transaction::X, FetchQueryOutput};
 
 
 impl<'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for q {
-    type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
+    type Output = FetchQueryOutput<'q, Vec<M>>;
     extern "rust-call" fn call_once(self, (FetchAll { __as__, sql },): (FetchAll<'q, M>,)) -> Self::Output {
         Box::pin(
             Box::pin(
-                pool().fetch_many(sqlx::query(sql))
+                pool().fetch_many(sql)
                     .try_filter_map(|step| async move {
                         Ok(match step {
                             Either::Left(_)    => None,
@@ -24,23 +24,45 @@ impl<'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for q {
         )
     }
 }
-// impl<'q, 'x:'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for &'x mut X {
-//     type Output = Pin<Box<dyn Future<Output = Result<Vec<M>, Error>> + 'q>>;
-//     extern "rust-call" fn call_once(self, (FetchAll { __as__, sql },): (FetchAll<'q, M>,)) -> Self::Output {
-//         Box::pin(
-//             Box::pin(
-//                 self.0.fetch_many(sqlx::query(sql))
-//                     .try_filter_map(|step| async move {
-//                         Ok(match step {
-//                             Either::Left(_)    => None,
-//                             Either::Right(row) => M::from_row(&row).ok(),
-//                         })
-//                     })
-//             )
-//             .try_collect()
-//         )
-//     }
-// }
+
+impl<'q, M:model+'q> FnOnce<(FetchAll<'q, M>,)> for X {
+    type Output = FetchQueryOutput<'q, Vec<M>>;
+    extern "rust-call" fn call_once(mut self, (FetchAll { __as__, sql },): (FetchAll<'q, M>,)) -> Self::Output {
+        Box::pin(async move {
+            Box::pin(
+                self.0.fetch_many(sql)
+                    .try_filter_map(|step| async move {
+                        Ok(match step {
+                            Either::Left(_)    => None,
+                            Either::Right(row) => M::from_row(&row).ok(),
+                        })
+                })
+            )
+            .try_collect().await
+        })
+    }
+}
+impl<'q, M:model+'q> FnMut<(FetchAll<'q, M>,)> for X {
+    extern "rust-call" fn call_mut(&mut self, (FetchAll { __as__, sql },): (FetchAll<'q, M>,)) -> Self::Output {
+        let output = Box::pin(async move {
+            Box::pin(
+                self.0.fetch_many(sql)
+                    .try_filter_map(|step| async move {
+                        Ok(match step {
+                            Either::Left(_)    => None,
+                            Either::Right(row) => M::from_row(&row).ok(),
+                        })
+                })
+            )
+            .try_collect().await
+        });
+        unsafe {std::mem::transmute::<
+            FetchQueryOutput<'_, Vec<M>>,
+            FetchQueryOutput<'q, Vec<M>>    
+        >(output)}
+    }
+}
+
 macro_rules! fetch_all_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, M:model+'q, $( $param:Param<'q> ),+> FnOnce<(FetchAll<'q, M>, $( $param ),+)> for q {
