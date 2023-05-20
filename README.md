@@ -92,3 +92,7 @@ async fn main() -> Result<()> {
 - `q( M::optional("query string") /* , param1, param2, ... */ ).await?` executes a fetch-optional query. This returns `Option<M>`.
 
 Here `M` means a struct that derives `Model`.
+
+
+## LICENSE
+`qjack` is licensed under [MIT LICENSE](https://github.com/kana-rus/qujack/blob/main/LICENSE) or [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
