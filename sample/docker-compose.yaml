@@ -36,6 +36,6 @@ services:
       - qjack-sample-data:/var/lib/postgresql/data
 
 volumes:
-  qjack-example-data:
+  qjack-sample-data:
     name: qjack-sample-data
     driver: local
