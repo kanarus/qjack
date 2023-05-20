@@ -1,7 +1,4 @@
-use sqlx::Executor;
-
 use crate::{pool::pool, Error, __feature__};
-use super::QueryOutput;
 
 
 pub enum TransactionResult {

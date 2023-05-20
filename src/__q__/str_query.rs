@@ -1,8 +1,6 @@
 #![allow(non_camel_case_types)]
-
-use std::{pin::Pin, future::Future};
 use sqlx::Executor;
-use crate::{__feature__, Error, q, pool};
+use crate::{q, pool};
 use super::{param::Param, transaction::X, QueryOutput};
 
 
