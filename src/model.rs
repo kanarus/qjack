@@ -15,13 +15,13 @@ pub struct FetchOptional<'q, M: Model> {
 
 #[allow(non_camel_case_types)]
 pub trait Model: for<'r> FromRow<'r, __feature__::Row> {
-    fn all<'q>(sql: &'q str) -> FetchAll<'q, Self> {
+    #[inline(always)] fn all<'q>(sql: &'q str) -> FetchAll<'q, Self> {
         FetchAll { sql, __as__:PhantomData }
     }
-    fn one<'q>(sql: &'q str) -> FetchOne<'q, Self> {
+    #[inline(always)] fn one<'q>(sql: &'q str) -> FetchOne<'q, Self> {
         FetchOne { sql, __as__:PhantomData }
     }
-    fn optional<'q>(sql: &'q str) -> FetchOptional<'q, Self> {
+    #[inline(always)] fn optional<'q>(sql: &'q str) -> FetchOptional<'q, Self> {
         FetchOptional { sql, __as__:PhantomData }
     }
 }

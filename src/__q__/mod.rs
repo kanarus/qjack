@@ -35,7 +35,7 @@ impl q {
     /// }
     /// ```
     #[allow(non_snake_case)]
-    pub fn jack(self, DB_URL: impl ToString) -> Config {
+    #[inline(always)] pub fn jack(self, DB_URL: impl ToString) -> Config {
         Config::new(DB_URL.to_string())
     }
 

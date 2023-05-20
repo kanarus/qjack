@@ -4,7 +4,7 @@ use crate::__feature__;
 
 
 pub static CONNECTION_POOL: OnceLock<__feature__::ConnectionPool> = OnceLock::new();
-pub(crate) fn pool<'p>() -> &'p crate::__feature__::ConnectionPool {
+#[inline(always)] pub(crate) fn pool<'p>() -> &'p crate::__feature__::ConnectionPool {
     CONNECTION_POOL.get()
         .expect("Failed to use connection pool")
 }
@@ -43,7 +43,7 @@ impl Future for ConnectingFuture {
 
 impl Config {
     pub(crate) fn new(DB_URL: String) -> Self {
-        Self { DB_URL,
+        Self {DB_URL,
             test_before_acquire: None,
             max_connections:     None,
             min_connections:     None,

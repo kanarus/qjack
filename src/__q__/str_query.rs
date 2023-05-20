@@ -6,19 +6,19 @@ use super::{param::Param, transaction::X, QueryOutput};
 
 impl<'q> FnOnce<(&'q str,)> for q {
     type Output = QueryOutput<'q>;
-    extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
+    #[inline(always)] extern "rust-call" fn call_once(self, (sql,): (&'q str,)) -> Self::Output {
         pool().execute(sql)
     }
 }
 
 impl<'q> FnOnce<(&'q str,)> for X {
     type Output = QueryOutput<'q>;
-    extern "rust-call" fn call_once(mut self, (sql,): (&'q str,)) -> Self::Output {
+    #[inline(always)] extern "rust-call" fn call_once(mut self, (sql,): (&'q str,)) -> Self::Output {
         Box::pin(async move {self.0.execute(sql).await})
     }
 }
 impl<'q> FnMut<(&'q str,)> for X {
-    extern "rust-call" fn call_mut(&mut self, (sql,): (&'q str,)) -> Self::Output {
+    #[inline(always)] extern "rust-call" fn call_mut(&mut self, (sql,): (&'q str,)) -> Self::Output {
         let output = self.0.execute(sql);
         unsafe {std::mem::transmute(output)}
     }
@@ -28,7 +28,7 @@ macro_rules! str_query_with_params {
     ($( $param:ident )+) => {
         impl<'q, $( $param:Param<'q> ),+> FnOnce<(&'q str, $( $param ),+)> for q {
             type Output = QueryOutput<'q>;
-            extern "rust-call" fn call_once(
+            #[inline(always)] extern "rust-call" fn call_once(
                 self,
                 (sql, $( $param ),+): (&'q str, $( $param ),+)
             ) -> Self::Output {
@@ -40,7 +40,7 @@ macro_rules! str_query_with_params {
 
         impl<'q, $( $param:Param<'q> ),+> FnOnce<(&'q str, $( $param ),+)> for X {
             type Output = QueryOutput<'q>;
-            extern "rust-call" fn call_once(
+            #[inline(always)] extern "rust-call" fn call_once(
                 mut self,
                 (sql, $( $param ),+): (&'q str, $( $param ),+)
             ) -> Self::Output {
@@ -53,7 +53,7 @@ macro_rules! str_query_with_params {
             }
         }
         impl<'q, $( $param:Param<'q> ),+> FnMut<(&'q str, $( $param ),+ )> for X {
-            extern "rust-call" fn call_mut(
+            #[inline(always)] extern "rust-call" fn call_mut(
                 &mut self,
                 (sql, $( $param ),+): (&'q str, $( $param ),+)
             ) -> Self::Output {

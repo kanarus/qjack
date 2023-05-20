@@ -62,13 +62,6 @@ mod __feature__ {
     pub use sqlx::Sqlite as DB;
 
     #[cfg(feature="db_postgres")]
-    pub(crate) use sqlx::postgres::PgArguments as Params;
-    #[cfg(feature="db_mysql")]
-    pub(crate) use sqlx::mysql::MySqlArguments as Params;
-    #[cfg(feature="db_sqlite")]
-    pub(crate) use sqlx::sqlite::SqliteArguments as Params;
-
-    #[cfg(feature="db_postgres")]
     pub(crate) use sqlx::postgres::PgQueryResult as QueryResult;
     #[cfg(feature="db_mysql")]
     pub(crate) use sqlx::mysql::MySqlQueryResult as QueryResult;
@@ -79,7 +72,6 @@ mod __feature__ {
 
 /*===== modules =====*/
 mod pool;
-mod query;
 mod model;
 mod __q__;
 
