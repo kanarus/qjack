@@ -1,3 +1,5 @@
+#![doc(html_root_url = "https://docs.rs/qjack_macros/0.1.0")]
+
 use proc_macro::TokenStream;
 
 mod model;
