@@ -164,7 +164,7 @@ async fn main() -> Result<()> {
 ## `q` magic
 
 - `q.jack("DB_URL") /* config */ .await?` creates connection pool in background. All queries must be performed after this.
-- `q.transaction(|mut x| async { /* returns x.rollback().await or x.commit().await */ }).await?` performs transaction. This is unstable in current version.
+- `q.transaction(|mut x| async { /* returns x.rollback().await or x.commit().await */ }).await?` performs transaction. This is **unsafe** in current version.
 - `q("query string" /* , param1, param2, ... */ ).await?` executes a non-fetch query. This returns `QueryResult`.
 - `q( M::all("query string") /* , param1, param2, ... */ ).await?` executes a fetch-all query. This returns `Vec<M>`.
 - `q( M::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `M`.
