@@ -88,7 +88,7 @@ async fn main() -> Result<()> {
     println!("They got some income:\n{Alice:#?},\n{Clara:#?}\n");
 
     unsafe {Alice.transfer_to(&mut Clara, 512).await?;}
-    println!("Succeeded to transfer:\n{Alice:#?} to {Clara:#?}");
+    println!("Succeeded to transfer:\n{Alice:#?},\n{Clara:#?}\n");
 
     Ok(())
 }
