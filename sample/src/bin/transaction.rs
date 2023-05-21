@@ -13,7 +13,7 @@ struct Account {
 impl Account {
     async fn create_table_if_not_exists() -> Result<()> {
         q("CREATE TABLE IF NOT EXISTS accounts (
-            id SERIAL PRIMARY KEY,
+            id BIGSERIAL PRIMARY KEY,
             name VARCHAR(32) NOT NULL,
             balance INT8 DEFAULT 0
         )").await?; Ok(())
