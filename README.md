@@ -205,7 +205,7 @@ q( M::one("query string") /* , params, ... */ ).await?
 ```rust
 q( M::optional("query string") /* , params, ... */ ).await?
 ```
-executes a fetch query. return type
+executes a fetch query. Return type：
 
 - `all` → `Vec<M>`
 - `one` → `M`,
