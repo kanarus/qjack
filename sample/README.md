@@ -1,3 +1,4 @@
+## How to run samples
 1.
 ```sh
 $ docker compose up
@@ -32,3 +33,11 @@ $ docker-compose down
 # And, if you'd like to refresh DB volume：
 $ docker volume rm qjack-sample-data
 ```
+
+## Warning
+Sample apps are so crazy in some points：
+
+- stores passwords without hashing
+- literal DB URL
+
+or others. They are only for simplification and **must** be avoided in real app.
