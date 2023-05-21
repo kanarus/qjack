@@ -211,8 +211,6 @@ executes a fetch query. return type
 - `one` → `M`,
 - `optional` → `Option<M>`.
 
-<br/>
-
 ( Here `M` means a struct that impls `Model` )
 
 <br/>
