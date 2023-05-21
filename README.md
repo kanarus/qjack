@@ -12,8 +12,9 @@
 ```toml
 [dependencies]
 qjack = { version = "0.1.2", features = ["rt_tokio", "db_postgres"] }
+tokio = { version = "1", features = ["macros"] }
 ```
-part of `sample/src/main.rs`
+part of [`sample/src/bin/friends.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/friends.rs)
 ```rust
 use qjack::{q, Model};
 type Result<T> = std::result::Result<T, qjack::Error>;

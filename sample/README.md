@@ -15,11 +15,20 @@ $ docker-compose exec app bash
 3.
 ```sh
 /app$ rustc --version
-# check that default toolchain is nightly
+# Check that default toolchain is nightly
 ```
 4.
 ```sh
-/app$ cargo run
-# takes some time to updating crates.io index and compiling
-# (`--release` will take crazily long time)
+/app$ cargo run --bin ＜sample name＞
+# Takes some time to updating crates.io index and compiling
+# See the result and logs from `qjack-sample-postgres` container
+```
+5.
+```sh
+$ docker compose down
+# or
+$ docker-compose down
+
+# And, if you'd like to refresh DB volume：
+$ docker volume rm qjack-sample-data
 ```

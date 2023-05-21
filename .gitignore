@@ -1,4 +1,2 @@
 /target
 /Cargo.lock
-
-/sample/src/transaction.rs
