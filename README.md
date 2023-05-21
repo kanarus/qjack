@@ -82,7 +82,7 @@ async fn main() -> Result<()> {
     // ...
 ```
 
-part of [`sample/src/bin/friends.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/transfer.rs)
+part of [`sample/src/bin/transfer.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/transfer.rs)
 ```rust
 #[derive(Model, Debug)]
 struct Account {
