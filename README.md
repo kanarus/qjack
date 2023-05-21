@@ -11,7 +11,7 @@
 ## Sample; How to use
 ```toml
 [dependencies]
-qjack = { version = "0.1.2", features = ["rt_tokio", "db_postgres"] }
+qjack = { version = "0.1.3", features = ["rt_tokio", "db_postgres"] }
 tokio = { version = "1", features = ["macros"] }
 ```
 
@@ -173,4 +173,4 @@ async fn main() -> Result<()> {
 Here `M` means a struct that derives `Model`.
 
 ## LICENSE
-`qjack` is licensed under [MIT LICENSE](https://github.com/kana-rus/qjack/blob/main/LICENSE) or [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+`qjack` is licensed under MIT LICENSE ([LICENSE](https://github.com/kana-rus/qjack/blob/main/LICENSE) or [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT))

@@ -6,7 +6,7 @@ members = [
 
 [package]
 name = "qjack"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["kanarus <kanarus786@gmail.com>"]
 description = "ergonomic sqlx wrapper for nightly Rust"
