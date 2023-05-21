@@ -35,6 +35,8 @@ impl Account {
             WHERE id = $2
         ", income, &self.id).await?;
 
+        self.balance += income;
+
         Ok(())
     }
 
@@ -49,7 +51,7 @@ impl Account {
                 UPDATE accounts
                 SET balance = balance - $1
                 WHERE id = $2
-            ", ammount, &self.id).await {
+            ", &ammount, &self.id).await {
                 eprintln!("Failed to subtract balance: {e}");
                 return x.rollback().await
             }
@@ -58,7 +60,7 @@ impl Account {
                 UPDATE accounts
                 SET balance = balance + $1
                 WHERE id = $2
-            ", ammount, &payee.id).await {
+            ", &ammount, &payee.id).await {
                 eprintln!("Failed to add balance: {e}");
                 return x.rollback().await
             }
