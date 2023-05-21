@@ -79,15 +79,16 @@ async fn main() -> Result<()> {
     Account::create_table_if_not_exists().await?;
 
     let mut Alice = Account::create_new("Alice").await?;
-    Alice.gets_income(1024).await?;
-
     let mut Clara = Account::create_new("Clara").await?;
-    Clara.gets_income(2048).await?;
+    println!("Created 2 accounts:\n{Alice:#?},\n{Clara:#?}\n");
 
-    println!("Created 2 accounts: {Alice:#?}, {Clara:#?}");
+    Alice.gets_income(1024).await?;
+    Clara.gets_income(2048).await?;
+    Alice.gets_income(8192).await?;
+    println!("They got some income:\n{Alice:#?},\n{Clara:#?}\n");
 
     unsafe {Alice.transfer_to(&mut Clara, 512).await?;}
-    println!("\nSucceeded to transfer: {Alice:#?}, {Clara:#?}");
+    println!("Succeeded to transfer:\n{Alice:#?} to {Clara:#?}");
 
     Ok(())
 }
