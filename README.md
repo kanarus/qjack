@@ -8,12 +8,15 @@
 - available DB：PostgreSQL, MySQL, SQLite
 - available runtime：`tokio`, `async-std`
 
+<br/>
+
 ## Sample; How to use
 ```toml
 [dependencies]
 qjack = { version = "0.1.3", features = ["rt_tokio", "db_postgres"] }
 tokio = { version = "1", features = ["macros"] }
 ```
+<br/>
 
 part of [`sample/src/bin/friends.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/friends.rs)
 ```rust
@@ -81,13 +84,14 @@ async fn main() -> Result<()> {
 
     // ...
 ```
+<br/>
 
 part of [`sample/src/bin/transfer.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/transfer.rs)
 ```rust
 #[derive(Model, Debug)]
 struct Account {
-    id: i64,
-    name: String,
+    id:      i64,
+    name:    String,
     balance: i64,
 }
 
@@ -161,16 +165,53 @@ async fn main() -> Result<()> {
     // ...
 ```
 
+<br/>
+
 ## `q` magic
 
-- `q.jack("DB_URL") /* config */ .await?` creates connection pool in background. All queries must be performed after this.
-- `q.transaction(|mut x| async { /* returns x.rollback().await or x.commit().await */ }).await?` performs transaction. This is **unsafe** in current version.
-- `q("query string" /* , param1, param2, ... */ ).await?` executes a non-fetch query. This returns `QueryResult`.
-- `q( M::all("query string") /* , param1, param2, ... */ ).await?` executes a fetch-all query. This returns `Vec<M>`.
-- `q( M::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `M`.
-- `q( M::optional("query string") /* , param1, param2, ... */ ).await?` executes a fetch-optional query. This returns `Option<M>`.
+```rust
+q.jack("DB_URL") /* config */ .await?
+```
+creates connection pool in background. All queries must be performed after this.
 
-Here `M` means a struct that derives `Model`.
+<br/>
+
+```rust
+q.transaction(|mut x| async {
+    /* returns
+        x.rollback().await
+       or
+        x.commit().await
+    */
+}).await?
+```
+performs a transaction. This is **`unsafe`** in current version.
+
+<br/>
+
+```rust
+q("query string" /* , params, ... */ ).await?
+```
+executes a non-fetch query. This returns `QueryResult`.
+
+<br/>
+
+```rust
+q( M::all("query string") /* , params, ... */ ).await?
+```
+```rust
+q( M::one("query string") /* , params, ... */ ).await?
+```
+```rust
+q( M::optional("query string") /* , params, ... */ ).await?
+```
+executes a fetch-all query. Return type：`all` → `Vec<M>` , `one` → `M`, `optional` → `Option<M>`.
+
+<br/>
+
+( Here `M` means a struct that impls `Model` )
+
+<br/>
 
 ## LICENSE
 `qjack` is licensed under MIT LICENSE ([LICENSE](https://github.com/kana-rus/qjack/blob/main/LICENSE) or [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT))
