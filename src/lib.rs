@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/ohkami/0.1.2")]
+#![doc(html_root_url = "https://docs.rs/qjack/0.1.2")]
 
 
 /*===== compiler features =====*/
