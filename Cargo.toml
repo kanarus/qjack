@@ -30,6 +30,6 @@ db_postgres = ["sqlx/postgres"]
 db_mysql = ["sqlx/mysql"]
 db_sqlite = ["sqlx/sqlite"]
 ##### PUBLISH #####
-default = []
+# default = []
 #####  DEBUG  #####
-# default = ["rt_tokio", "db_postgres"]
+default = ["rt_tokio", "db_postgres"]
