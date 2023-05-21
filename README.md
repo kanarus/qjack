@@ -13,7 +13,7 @@
 ## Sample; How to use
 ```toml
 [dependencies]
-qjack = { version = "0.1.3", features = ["rt_tokio", "db_postgres"] }
+qjack = { version = "0.1", features = ["rt_tokio", "db_postgres"] }
 tokio = { version = "1", features = ["macros"] }
 ```
 <br/>
