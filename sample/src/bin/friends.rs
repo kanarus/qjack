@@ -110,7 +110,7 @@ async fn main() -> Result<()> {
     }
 
     let friends_ending_with_a = Friend::find_all_with_limit_by_name_like("%a", 100).await?;
-    println!("Fiends whose name ends with 'a': {friends_ending_with_a:#?}");
+    println!("Fiends whose name end with 'a': {friends_ending_with_a:#?}");
 
     Ok(())
 }

@@ -9,7 +9,7 @@ const PAYEE_NAME: &str = "Clara";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    q.jack("DB_URL").await?;
+    q.jack("postgres://qjack:password@postgres:5432/db").await?;
 
     unsafe {q.transaction(|mut x| async {
         if let Err(e) = x("
