@@ -14,11 +14,9 @@
 qjack = { version = "0.1.2", features = ["rt_tokio", "db_postgres"] }
 tokio = { version = "1", features = ["macros"] }
 ```
+
 part of [`sample/src/bin/friends.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/friends.rs)
 ```rust
-use qjack::{q, Model};
-type Result<T> = std::result::Result<T, qjack::Error>;
-
 #[derive(Model, Debug)]
 struct Friend {
     id:       i32,
@@ -84,9 +82,89 @@ async fn main() -> Result<()> {
     // ...
 ```
 
+part of [`sample/src/bin/friends.rs`](https://github.com/kana-rus/qjack/tree/main/sample/src/bin/transfer.rs)
+```rust
+#[derive(Model, Debug)]
+struct Account {
+    id: i64,
+    name: String,
+    balance: i64,
+}
+
+impl Account {
+    async fn create_table_if_not_exists() -> Result<()> {
+        q("CREATE TABLE IF NOT EXISTS accounts (
+            id BIGSERIAL PRIMARY KEY,
+            name VARCHAR(32) NOT NULL,
+            balance INT8 DEFAULT 0
+        )").await?; Ok(())
+    }
+
+    async fn create_new(name: &str) -> Result<Self> {
+        let created = q(Self::one("
+            INSERT INTO accounts
+            (name, balance) VALUES ($1, $2)
+            RETURNING id, name, balance
+        "), name, 0).await?;
+
+        Ok(created)
+    }
+
+    async fn gets_income(&mut self, income: i64) -> Result<()> {
+        q("UPDATE accounts
+            SET balance = balance + $1
+            WHERE id = $2
+        ", income, &self.id).await?;
+
+        self.balance += income;
+
+        Ok(())
+    }
+
+    // transaction is unsafe in current version
+    async unsafe fn transfer_to(
+        &mut self,
+        payee: &mut Account,
+        ammount: i64
+    ) -> Result<()> {
+        q.transaction(|mut x| async {
+            if let Err(e) = x("
+                UPDATE accounts
+                SET balance = balance - $1
+                WHERE id = $2
+            ", &ammount, &self.id).await {
+                eprintln!("Failed to subtract balance: {e}");
+                return x.rollback().await
+            }
+
+            if let Err(e) = x("
+                UPDATE accounts
+                SET balance = balance + $1
+                WHERE id = $2
+            ", &ammount, &payee.id).await {
+                eprintln!("Failed to add balance: {e}");
+                return x.rollback().await
+            }
+
+            self.balance  -= ammount;
+            payee.balance += ammount;
+
+            x.commit().await
+        }).await
+    }
+}
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    q.jack("postgres://qjack:password@postgres:5432/db").await?;
+
+    // ...
+```
+
 ## `q` magic
 
 - `q.jack("DB_URL") /* config */ .await?` creates connection pool in background. All queries must be performed after this.
+- `q.transaction(|mut x| async { /* returns x.rollback().await or x.commit().await */ }).await?` performs transaction. This is unstable in current version.
 - `q("query string" /* , param1, param2, ... */ ).await?` executes a non-fetch query. This returns `QueryResult`.
 - `q( M::all("query string") /* , param1, param2, ... */ ).await?` executes a fetch-all query. This returns `Vec<M>`.
 - `q( M::one("query string") /* , param1, param2, ... */ ).await?` executes a fetch-one query. This returns `M`.
