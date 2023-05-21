@@ -39,7 +39,7 @@ impl q {
         Config::new(DB_URL.to_string())
     }
 
-    /// Perform a transaction. In current version, this is `unsafe` function for a technical reason.
+    /// Perform a transaction. In current version, this is `unsafe` method for a technical reason.
     /// 
     /// <br/>
     /// 
@@ -74,7 +74,11 @@ impl q {
     ///         }
     /// 
     ///         x.commit().await
-    ///     })}.await
+    ///     })}.await.map_err(|_| c.InternalServerError(
+    ///         "Error occured in transfering process"
+    ///     ))?;
+    /// 
+    ///     c.NoContent()
     /// }
     /// ```
     pub async unsafe fn transaction<'f,

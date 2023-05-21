@@ -2,9 +2,6 @@
 members = [
     ".",
     "macros",
-
-    # ↓ comment out before publishing
-    "sample"
 ]
 
 [package]
@@ -27,9 +24,12 @@ futures-util = "0.3"
 qjack_macros = { version = "0.1.0", path = "macros" }
 
 [features]
-default = []
 rt_tokio = ["sqlx/runtime-tokio-native-tls"]
 rt_async-std = ["sqlx/runtime-async-std-native-tls"]
 db_postgres = ["sqlx/postgres"]
 db_mysql = ["sqlx/mysql"]
 db_sqlite = ["sqlx/sqlite"]
+##### PUBLISH #####
+default = []
+#####  DEBUG  #####
+# default = ["rt_tokio", "db_postgres"]
