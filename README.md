@@ -198,19 +198,19 @@ executes a non-fetch query. This returns `QueryResult`.
 <br/>
 
 ```rust
-q( M::all("query string") /* , params, ... */ ).await?
+q( M::one("query string") /* , params, ... */ ).await?
 ```
 ```rust
-q( M::one("query string") /* , params, ... */ ).await?
+q( M::all("query string") /* , params, ... */ ).await?
 ```
 ```rust
 q( M::optional("query string") /* , params, ... */ ).await?
 ```
 executes a fetch query. Return type：
 
+- `one` → `M`
 - `all` → `Vec<M>`
-- `one` → `M`,
-- `optional` → `Option<M>`.
+- `optional` → `Option<M>`
 
 ( Here `M` means a struct that impls `Model` )
 
