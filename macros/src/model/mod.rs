@@ -9,8 +9,23 @@ use quote::quote;
 use proc_macro2::{TokenStream, Span};
 use syn::{Error, parse2, ItemStruct, Lifetime, parse_quote, Stmt, Expr};
 
-pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
+
+fn is_tuple_struct(item_struct: &ItemStruct) -> bool {
+    item_struct.fields.iter()
+        .all(|field| field.ident.is_none())
+}
+
+pub(super) fn derive_model(input: TokenStream) -> Result<TokenStream, Error> {
     let input = parse2::<ItemStruct>(input)?;
+
+    if is_tuple_struct(&input) {
+        derive_for_tuple_struct(input)
+    } else {
+        derive_for_key_value_struct(input)
+    }
+}
+
+fn derive_for_key_value_struct(input: ItemStruct) -> Result<TokenStream, Error> {
     let original_generics = input.clone().generics;
 
     let fields = input.fields;
@@ -116,5 +131,51 @@ pub(super) fn model(input: TokenStream) -> Result<TokenStream, Error> {
 
         #[automatically_derived]
         impl #original_generics ::qjack::Model for #ident #type_generics {}
+    })
+}
+
+fn derive_for_tuple_struct(input: ItemStruct) -> Result<TokenStream, Error> {
+    let (ident, original_generics)   = (&input.ident, &input.generics);
+    let (_, ty_generics, _) = original_generics.split_for_impl();
+    let (lifetime, lifetime_is_provided) = original_generics
+        .lifetimes().next()
+        .map(|def| (def.lifetime.clone(), false))
+        .unwrap_or_else(|| (Lifetime::new("'a", Span::call_site()), true));
+
+    let mut generics = original_generics.clone();
+    generics.params.insert(0, parse_quote!{ R: ::qjack::__private__::Row });
+    if lifetime_is_provided {
+        generics.params.insert(0, parse_quote!{ #lifetime });
+    }
+
+    let predicates = &mut generics.make_where_clause().predicates;
+    predicates.push(parse_quote!{
+        ::std::primitive::usize: ::qjack::__private__::ColumnIndex<R>
+    });
+    for field in &input.fields {
+        let ty = &field.ty;
+        predicates.push(parse_quote!{ #ty: ::qjack::__private__::Decode<#lifetime, <R as ::qjack::__private__::Row>::Database> });
+        predicates.push(parse_quote!{ #ty: ::qjack::__private__::Type<<R as ::qjack::__private__::Row>::Database> });
+    }
+
+    let (impl_generics, _, where_clause) = generics.split_for_impl();
+    let gets = input.fields.iter()
+        .enumerate()
+        .map(|(i, _)| quote!{ row.try_get(#i)? });
+
+    Ok(quote!{
+        #[automatically_derived]
+        impl #impl_generics ::qjack::__private__::FromRow<#lifetime, R> for #ident #ty_generics
+        #where_clause
+        {
+            fn from_row(row: &#lifetime R) -> ::std::result::Result<Self, ::qjack::Error> {
+                ::std::result::Result::Ok(
+                    #ident( #( #gets ),* )
+                )
+            }
+        }
+
+        #[automatically_derived]
+        impl #original_generics ::qjack::Model for #ident #ty_generics {}
     })
 }
