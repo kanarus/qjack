@@ -17,11 +17,12 @@ pub struct q;
 impl q {
     /// Create connection pool with given configuration.
     /// 
-    /// **ALL** queries **MUST** be executed **AFTER** this
+    /// All queries **MUST** be executed **AFTER** this
     /// 
     /// <br/>
     /// 
     /// ```ignore
+    /// #[tokio::main]
     /// async fn main() -> Result<(), qjack::Error> {
     ///     q.jack("DB_URL")
     ///         .max_connections(42)
@@ -30,7 +31,7 @@ impl q {
     ///     /* do something with DB */
     /// }
     /// 
-    /// async fn some_proc() {
+    /// async fn some_proc_with_DB() {
     ///     /* called AFTER `q.jack() 〜 .await?` */
     /// }
     /// ```
@@ -44,41 +45,36 @@ impl q {
     /// <br/>
     /// 
     /// ```ignore
-    /// #[Payload(JSON)]
-    /// struct TransferRequest {
-    ///     from: Account,
-    ///     to:   Account,
-    ///     ammount: u128,
-    /// }
-    /// 
-    /// async fn transfer(c: Context, req: TransferRequest) -> Result<()> {
-    ///     let TransferRequest {from, to, ammount} = req;
-    /// 
-    ///     unsafe {q.transaction(|mut x| async {
+    // transaction is unsafe in current version
+    /// async unsafe fn transfer_to(
+    ///     &mut self,
+    ///     payee: &mut Account,
+    ///     ammount: i64
+    /// ) -> Result<()> {
+    ///     q.transaction(|mut x| async {
     ///         if let Err(e) = x("
     ///             UPDATE accounts
     ///             SET balance = balance - $1
-    ///             WHERE id = $2 AND name = $3
-    ///         ", ammount, from.id, from.name).await {
-    ///             tracing::error!("Error in subtracting balance: {e}");
+    ///             WHERE id = $2
+    ///         ", &ammount, &self.id).await {
+    ///             eprintln!("Failed to subtract balance: {e}");
     ///             return x.rollback().await
     ///         }
     /// 
     ///         if let Err(e) = x("
     ///             UPDATE accounts
     ///             SET balance = balance + $1
-    ///             WHERE id = $2 AND name = $3   
-    ///         ", ammount, to.id, to.name).await {
-    ///             tracing::error!("Error in add balance: {e}");
+    ///             WHERE id = $2
+    ///         ", &ammount, &payee.id).await {
+    ///             eprintln!("Failed to add balance: {e}");
     ///             return x.rollback().await
     ///         }
     /// 
-    ///         x.commit().await
-    ///     })}.await.map_err(|_| c.InternalServerError(
-    ///         "Error occured in transfering process"
-    ///     ))?;
+    ///         self.balance  -= ammount;
+    ///         payee.balance += ammount;
     /// 
-    ///     c.NoContent()
+    ///         x.commit().await
+    ///     }).await
     /// }
     /// ```
     pub async unsafe fn transaction<'f,
