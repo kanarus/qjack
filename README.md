@@ -1,12 +1,11 @@
-<h1 align="center">
-    qjack
-</h1>
+<h1 align="center">qjack</h1>
 
 ## ergonomic sqlx wrapper for *nightly* Rust
 - nightly only
 - macro free
 - available DB：PostgreSQL, MySQL, SQLite
 - available runtime：`tokio`, `async-std`
+- status：<span style="vertical-align: middle"><img alt="qjack build check status" src="https://github.com/kana-rus/qjack/actions/workflows/check.yaml/badge.svg"/></span>
 
 <br/>
 
