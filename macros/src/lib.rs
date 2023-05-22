@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/qjack_macros/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/qjack_macros/0.2.0")]
 
 use proc_macro::TokenStream;
 
