@@ -178,10 +178,11 @@ creates connection pool in background. All queries must be performed after this.
 
 ```rust
 q.transaction(|mut x| async {
-    /* returns
-        x.rollback().await
-       or
-        x.commit().await
+    /*
+        returns
+            x.rollback().await
+        or
+            x.commit().await
     */
 }).await?
 ```
