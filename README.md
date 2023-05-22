@@ -5,7 +5,8 @@
 - macro free
 - available DB：PostgreSQL, MySQL, SQLite
 - available runtime：`tokio`, `async-std`
-- status：<img align="middle" height="1em" alt="qjack build check status" src="https://github.com/kana-rus/qjack/actions/workflows/check.yaml/badge.svg"/>
+
+<img align="right" alt="qjack build check status" src="https://github.com/kana-rus/qjack/actions/workflows/check.yaml/badge.svg"/>
 
 <br/>
 
